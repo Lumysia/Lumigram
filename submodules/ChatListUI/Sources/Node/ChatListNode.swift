@@ -1,7 +1,3 @@
-// MARK: Swiftgram
-import SGAPIToken
-import SGAPIWebSettings
-//
 import Foundation
 import UIKit
 import Display
@@ -1485,26 +1481,12 @@ public final class ChatListNode: ListViewImpl {
             }
         }, /* MARK: Swiftgram */ openSGAnnouncement: { [weak self] announcementId, url, needAuth, permanent in
             if let strongSelf = self {
-                if needAuth {
-                    let _ = (getSGSettingsURL(context: strongSelf.context, url: url)
-                             |> deliverOnMainQueue).start(next: { [weak self] url in
-                        guard let strongSelf = self else {
-                            return
-                        }
-                        strongSelf.context.sharedContext.openExternalUrl(context: strongSelf.context, urlContext: .generic, url: url, forceExternal: false, presentationData: strongSelf.context.sharedContext.currentPresentationData.with { $0 }, navigationController: strongSelf.getNavigationController?(), dismissInput: {})
-                    })
-                } else {
-                    Queue.mainQueue().async {
-                        strongSelf.context.sharedContext.openExternalUrl(context: strongSelf.context, urlContext: .generic, url: url, forceExternal: false, presentationData: strongSelf.context.sharedContext.currentPresentationData.with { $0 }, navigationController: strongSelf.getNavigationController?(), dismissInput: {})
-                    }
-                    
+                Queue.mainQueue().async {
+                    strongSelf.context.sharedContext.openExternalUrl(context: strongSelf.context, urlContext: .generic, url: url, forceExternal: false, presentationData: strongSelf.context.sharedContext.currentPresentationData.with { $0 }, navigationController: strongSelf.getNavigationController?(), dismissInput: {})
                 }
                 if !permanent {
-                    Queue.mainQueue().after(0.6) { [weak self] in
-                        if let strongSelf = self {
-                            dismissSGProvidedSuggestion(suggestionId: announcementId)
-                            postSGWebSettingsInteractivelly(context: strongSelf.context, data: ["skip_announcement_id": announcementId])
-                        }
+                    Queue.mainQueue().after(0.6) {
+                        dismissSGProvidedSuggestion(suggestionId: announcementId)
                     }
                 }
             }

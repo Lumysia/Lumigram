@@ -8,8 +8,6 @@ load(
 
 sgdeps = [
     "//Swiftgram/SGSettingsUI:SGSettingsUI",
-    "//Swiftgram/SGConfig:SGConfig",
-    "//Swiftgram/SGAPIWebSettings:SGAPIWebSettings",
     "//Swiftgram/SGAppGroupIdentifier:SGAppGroupIdentifier",
     "//Swiftgram/SGSimpleSettings:SGSimpleSettings",
     "//Swiftgram/SFSafariViewControllerPlus:SFSafariViewControllerPlus",
@@ -17,7 +15,6 @@ sgdeps = [
     "//Swiftgram/SGStrings:SGStrings",
     "//Swiftgram/SGActionRequestHandlerSanitizer:SGActionRequestHandlerSanitizer",
     "//Swiftgram/Wrap:Wrap",
-    "//Swiftgram/SGDeviceToken:SGDeviceToken",
     "//Swiftgram/SGDebugUI:SGDebugUI",
     "//Swiftgram/SGInputToolbar:SGInputToolbar",
     "//Swiftgram/SGProUI:SGProUI",
