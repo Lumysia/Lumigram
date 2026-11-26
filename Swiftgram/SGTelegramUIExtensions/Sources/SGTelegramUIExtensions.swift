@@ -64,19 +64,6 @@ func sgHandleInternalUrlRoute(context: AccountContext, parsedUrl: URL, navigatio
             ),
             nil
         )
-    case "restore_purchases", "pro_restore", "validate", "restore":
-        let presentationData = context.sharedContext.currentPresentationData.with { $0 }
-        let lang = presentationData.strings.baseLanguageCode
-        context.sharedContext.presentGlobalController(
-            UndoOverlayController(
-                presentationData: presentationData,
-                content: .info(title: nil, text: "PayWall.Button.Restoring".i18n(lang), timeout: nil, customUndoText: nil),
-                elevatedLayout: false,
-                action: { _ in return false }
-            ),
-            nil
-        )
-        context.sharedContext.SGIAP?.restorePurchases {}
     default:
         break
     }
