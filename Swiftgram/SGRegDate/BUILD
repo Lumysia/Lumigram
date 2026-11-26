@@ -12,14 +12,9 @@ swift_library(
     deps = [
         "//Swiftgram/SGRegDateScheme:SGRegDateScheme",
         "//Swiftgram/SGSimpleSettings:SGSimpleSettings",
-        "//Swiftgram/SGAPI:SGAPI",
-        "//Swiftgram/SGAPIToken:SGAPIToken",
-        "//Swiftgram/SGDeviceToken:SGDeviceToken",
-        "//Swiftgram/SGStrings:SGStrings",
 
         "//submodules/AccountContext:AccountContext",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
-        "//submodules/TelegramPresentationData:TelegramPresentationData",
     ],
     visibility = [
         "//visibility:public",
