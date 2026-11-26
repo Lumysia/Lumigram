@@ -1,4 +1,3 @@
-import SGGTranslate
 import SGLogging
 import SGSimpleSettings
 
@@ -61,32 +60,13 @@ func sgTranslationDebugError(backend: SGSimpleSettings.TranslationBackend, input
     sgTranslationDebugLog("[\(backend.rawValue)] error translating \(inputLength) chars\(sgTranslationDebugLanguages(fromLang: fromLang, toLang: toLang)), error: \(error)")
 }
 
-func sgTranslationDebugFallback(backend: SGSimpleSettings.TranslationBackend, inputLength: Int, fromLang: String?, toLang: String) {
-    sgTranslationDebugLog("[\(backend.rawValue)] attempting GTranslate fallback for \(inputLength) chars\(sgTranslationDebugLanguages(fromLang: fromLang, toLang: toLang))")
-}
-
-func sgGTranslate(text: String, fromLang: String? = nil, toLang: String) -> Signal<(String, [MessageTextEntity])?, TranslationError> {
-    return gtranslate(text, toLang)
-    |> map { translatedText in
-        sgTranslationDebugSuccess(backend: .gtranslate, inputLength: text.count, outputLength: translatedText.count, fromLang: fromLang, toLang: toLang)
-        return (translatedText, [])
-    }
-    |> mapError { error in
-        sgTranslationDebugError(backend: .gtranslate, inputLength: text.count, fromLang: fromLang, toLang: toLang, error: error)
-        return .generic
-    }
-}
-
 func sgWrappedTranslateSingle(text: String, toLang: String, `default`: Signal<(String, [MessageTextEntity])?, TranslationError>) -> Signal<(String, [MessageTextEntity])?, TranslationError> {
     let backend = SGSimpleSettings.shared.translationBackendEnum
     switch backend {
-    case .gtranslate:
-        return sgGTranslate(text: text, toLang: toLang)
     case .system:
         guard let engineExperimentalInternalTranslationService else {
             sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang, error: "unavailable")
-            sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang)
-            return sgGTranslate(text: text, toLang: toLang)
+            return .fail(.generic)
         }
         return engineExperimentalInternalTranslationService.translate(texts: [0: text], fromLang: "", toLang: toLang)
         |> castError(TranslationError.self)
@@ -98,41 +78,21 @@ func sgWrappedTranslateSingle(text: String, toLang: String, `default`: Signal<(S
             sgTranslationDebugSuccess(backend: backend, inputLength: text.count, outputLength: translatedText.count, fromLang: nil, toLang: toLang)
             return .single((translatedText, []))
         }
-        |> `catch` { error in
-            sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang, error: error)
-            sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang)
-            return sgGTranslate(text: text, toLang: toLang)
-        }
     case .default:
         return `default`
         |> beforeNext { result in
             sgTranslationDebugSuccess(backend: backend, inputLength: text.count, outputLength: result?.0.count ?? 0, fromLang: nil, toLang: toLang)
         }
-        |> `catch` { error in
-            sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang, error: error)
-            sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: nil, toLang: toLang)
-            return sgGTranslate(text: text, toLang: toLang)
-        }
     }
-}
-
-func sgGTranslate(texts: [(String, [MessageTextEntity])], toLang: String) -> Signal<[(String, [MessageTextEntity])], TranslationError> {
-    return combineLatest(texts.map { text, _ in
-        sgGTranslate(text: text, toLang: toLang)
-        |> map { $0 ?? ("", []) }
-    })
 }
 
 func sgWrappedTranslateMultiple(texts: [(String, [MessageTextEntity])], toLang: String, `default`: Signal<[(String, [MessageTextEntity])], TranslationError>) -> Signal<[(String, [MessageTextEntity])], TranslationError> {
     let backend = SGSimpleSettings.shared.translationBackendEnum
     switch backend {
-    case .gtranslate:
-        return sgGTranslate(texts: texts, toLang: toLang)
     case .system:
         guard let engineExperimentalInternalTranslationService else {
             sgTranslationDebugError(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang, error: "unavailable")
-            sgTranslationDebugFallback(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang)
-            return sgGTranslate(texts: texts, toLang: toLang)
+            return .fail(.generic)
         }
         let sourceTexts = Dictionary(uniqueKeysWithValues: texts.enumerated().map { (AnyHashable($0.offset), $0.element.0) })
         return engineExperimentalInternalTranslationService.translate(texts: sourceTexts, fromLang: "", toLang: toLang)
@@ -152,29 +112,19 @@ func sgWrappedTranslateMultiple(texts: [(String, [MessageTextEntity])], toLang: 
             sgTranslationDebugSuccess(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, outputLength: translated.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang)
             return .single(translated)
         }
-        |> `catch` { error in
-            sgTranslationDebugError(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang, error: error)
-            sgTranslationDebugFallback(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang)
-            return sgGTranslate(texts: texts, toLang: toLang)
-        }
     case .default:
         return `default`
         |> beforeNext { translated in
             sgTranslationDebugSuccess(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, outputLength: translated.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang)
         }
-        |> `catch` { error in
-            sgTranslationDebugError(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang, error: error)
-            sgTranslationDebugFallback(backend: backend, inputLength: texts.reduce(0) { $0 + $1.0.count }, fromLang: nil, toLang: toLang)
-            return sgGTranslate(texts: texts, toLang: toLang)
-        }
     }
 }
 
-func _internal_translateMessagesViaText(account: Account, messagesDict: [EngineMessage.Id: String], fromLang: String?, toLang: String, generateEntitiesFunction: @escaping (String) -> [MessageTextEntity], forceGTranslate: Bool) -> Signal<Never, TranslationError> {
+func _internal_translateMessagesViaText(account: Account, messagesDict: [EngineMessage.Id: String], fromLang: String?, toLang: String, generateEntitiesFunction: @escaping (String) -> [MessageTextEntity]) -> Signal<Never, TranslationError> {
     var listOfSignals: [Signal<Void, TranslationError>] = []
     for (messageId, text) in messagesDict {
         listOfSignals.append(
-            sgTranslateRawText(account: account, text: text, fromLang: fromLang, toLang: toLang, forceGTranslate: forceGTranslate)
+            sgTranslateRawText(account: account, text: text, fromLang: fromLang, toLang: toLang)
             |> mapToSignal { translated -> Signal<Void, TranslationError> in
                 guard let translated, !translated.0.isEmpty else {
                     return .complete()
@@ -196,19 +146,15 @@ func _internal_translateMessagesViaText(account: Account, messagesDict: [EngineM
     return combineLatest(listOfSignals) |> ignoreValues
 }
 
-func sgTranslateRawText(account: Account, text: String, fromLang: String?, toLang: String, forceGTranslate: Bool = false) -> Signal<(String, [MessageTextEntity])?, TranslationError> {
+func sgTranslateRawText(account: Account, text: String, fromLang: String?, toLang: String) -> Signal<(String, [MessageTextEntity])?, TranslationError> {
     guard !text.isEmpty else {
         return .complete()
     }
     let backend = SGSimpleSettings.shared.translationBackendEnum
-    if forceGTranslate || backend == .gtranslate {
-        return sgGTranslate(text: text, fromLang: fromLang, toLang: toLang)
-    }
     if backend == .system {
         guard let engineExperimentalInternalTranslationService else {
             sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang, error: "unavailable")
-            sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang)
-            return sgGTranslate(text: text, fromLang: fromLang, toLang: toLang)
+            return .fail(.generic)
         }
         return engineExperimentalInternalTranslationService.translate(texts: [0: text], fromLang: fromLang ?? "", toLang: toLang)
         |> castError(TranslationError.self)
@@ -220,25 +166,15 @@ func sgTranslateRawText(account: Account, text: String, fromLang: String?, toLan
             sgTranslationDebugSuccess(backend: backend, inputLength: text.count, outputLength: translatedText.count, fromLang: fromLang, toLang: toLang)
             return .single((translatedText, []))
         }
-        |> `catch` { error in
-            sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang, error: error)
-            sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang)
-            return sgGTranslate(text: text, fromLang: fromLang, toLang: toLang)
-        }
     }
     return _internal_translate(network: account.network, text: text, toLang: toLang)
     |> beforeNext { result in
         sgTranslationDebugSuccess(backend: backend, inputLength: text.count, outputLength: result?.0.count ?? 0, fromLang: fromLang, toLang: toLang)
     }
-    |> `catch` { error in
-        sgTranslationDebugError(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang, error: error)
-        sgTranslationDebugFallback(backend: backend, inputLength: text.count, fromLang: fromLang, toLang: toLang)
-        return sgGTranslate(text: text, fromLang: fromLang, toLang: toLang)
-    }
 }
 
 extension TelegramEngine.Messages {
-    public func translateMessagesViaText(messagesDict: [EngineMessage.Id: String], fromLang: String?, toLang: String, generateEntitiesFunction: @escaping (String) -> [MessageTextEntity], enableLocalIfPossible: Bool, forceGTranslate: Bool = false) -> Signal<Never, TranslationError> {
-        return _internal_translateMessagesViaText(account: self.account, messagesDict: messagesDict, fromLang: fromLang, toLang: toLang, generateEntitiesFunction: generateEntitiesFunction, forceGTranslate: forceGTranslate)
+    public func translateMessagesViaText(messagesDict: [EngineMessage.Id: String], fromLang: String?, toLang: String, generateEntitiesFunction: @escaping (String) -> [MessageTextEntity], enableLocalIfPossible: Bool) -> Signal<Never, TranslationError> {
+        return _internal_translateMessagesViaText(account: self.account, messagesDict: messagesDict, fromLang: fromLang, toLang: toLang, generateEntitiesFunction: generateEntitiesFunction)
     }
 }

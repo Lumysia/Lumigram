@@ -349,18 +349,9 @@ public func translateMessageIds(context: AccountContext, messageIds: [EngineMess
             // MARK: Swiftgram
             if SGSimpleSettings.shared.translatorLogsEnabled {
                 SGLogger.shared.log("Translate", "[\(sgBackend.rawValue)] error translating \(sgInputLength) chars\(fromLang.flatMap { " from '\($0)'" } ?? "") to '\(toLang)', error: \(error)")
-                SGLogger.shared.log("Translate", "[\(SGSimpleSettings.TranslationBackend.gtranslate.rawValue)] attempting GTranslate fallback for \(sgInputLength) chars\(fromLang.flatMap { " from '\($0)'" } ?? "") to '\(toLang)'")
             }
             //
-            guard !messageDictToTranslate.isEmpty else {
-                return .complete()
-            }
-            return context.engine.messages.translateMessagesViaText(messagesDict: messageDictToTranslate, fromLang: fromLang, toLang: toLang, generateEntitiesFunction: { text in
-                generateTextEntities(text, enabledTypes: .all)
-            }, enableLocalIfPossible: false, forceGTranslate: true)
-            |> `catch` { _ -> Signal<Never, NoError> in
-                return .complete()
-            }
+            return .complete()
         }
         }
         //
