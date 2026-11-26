@@ -330,7 +330,7 @@ public class SGSimpleSettings {
         Keys.translationBackend.rawValue: TranslationBackend.default.rawValue,
         Keys.translatorLogsExpiration.rawValue: 0.0,
         Keys.customAppBadge.rawValue: "",
-        Keys.canUseNY.rawValue: false,
+        Keys.canUseNY.rawValue: true,
         Keys.nyStyle.rawValue: NYStyle.default.rawValue,
         Keys.wideTabBar.rawValue: false,
         Keys.tabBarSearchEnabled.rawValue: true,
