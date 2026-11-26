@@ -1,6 +1,4 @@
 import SGLogging
-import SGAPIWebSettings
-import SGConfig
 import SGSettingsUI
 import SFSafariViewControllerPlus
 //
@@ -20,12 +18,6 @@ func sgOpenUrlWithSafariController(
         let controller = SFSafariViewControllerPlusDidFinish(url: parsedUrl)
         controller.preferredBarTintColor = presentationData.theme.rootController.navigationBar.opaqueBackgroundColor
         controller.preferredControlTintColor = presentationData.theme.rootController.navigationBar.accentTextColor
-        if parsedUrl.host?.lowercased() == SG_API_WEBAPP_URL_PARSED.host?.lowercased() {
-            controller.onDidFinish = {
-                SGLogger.shared.log("SafariController", "Closed webapp")
-                updateSGWebSettingsInteractivelly(context: context)
-            }
-        }
         window.rootViewController?.present(controller, animated: true)
     } else {
         context.sharedContext.applicationBindings.openUrl(originalUrl)

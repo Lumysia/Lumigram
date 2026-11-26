@@ -1,5 +1,3 @@
-import SGConfig
-import SGAPIWebSettings
 import SGLogging
 import Foundation
 import UIKit
@@ -3692,7 +3690,6 @@ public final class WebAppController: ViewController, AttachmentContainable {
     fileprivate let updatedPresentationData: (initial: PresentationData, signal: Signal<PresentationData, NoError>)?
     private var presentationDataDisposable: Disposable?
     
-    private var viewWillDisappearCalled = false
     private var hasSettings = false
     
     public var openUrl: (String, Bool, Bool, @escaping () -> Void) -> Void = { _, _, _, _ in }
@@ -4191,23 +4188,6 @@ public final class WebAppController: ViewController, AttachmentContainable {
     }
     
     
-    // MARK: Swiftgram
-    override final public func viewWillDisappear(_ animated: Bool) {
-        if !self.viewWillDisappearCalled {
-            self.viewWillDisappearCalled = true
-            self.updateSGWebSettingsIfNeeded()
-        }
-        super.viewWillDisappear(animated)
-    }
-    
-    private func updateSGWebSettingsIfNeeded() {
-        if let url = self.url, let parsedUrl = URL(string: url), parsedUrl.host?.lowercased() == SG_API_WEBAPP_URL_PARSED.host?.lowercased() {
-            SGLogger.shared.log("WebApp", "Closed webapp")
-            updateSGWebSettingsInteractivelly(context: self.context)
-        }
-    }
-    
-
     public func requestDismiss(completion: @escaping () -> Void) {
         if self.controllerNode.needDismissConfirmation {
             let alertController = textAlertController(

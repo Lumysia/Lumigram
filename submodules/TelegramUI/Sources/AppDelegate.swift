@@ -1,11 +1,7 @@
 // MARK: Swiftgram
-import SGAPI
-import SGDeviceToken
-import SGAPIToken
 
 import SGActionRequestHandlerSanitizer
 import SGGHSettings
-import SGAPIWebSettings
 import SGLogging
 import SGStrings
 import SGSimpleSettings
@@ -1524,7 +1520,6 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                     //
                     
                     // MARK: Swiftgram
-                    updateSGWebSettingsInteractivelly(context: context.context)
                     updateSGGHSettingsInteractivelly(context: context.context)
                     let _ = (context.context.sharedContext.presentationData.start(next: { presentationData in
                         SGLocalizationManager.shared.downloadLocale(presentationData.strings.baseLanguageCode)
@@ -2223,7 +2218,6 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 for (_, context, _) in activeAccounts.accounts {
                     // MARK: Swiftgram
                     if !sgTasksLaunched {
-                        updateSGWebSettingsInteractivelly(context: context)
                         updateSGGHSettingsInteractivelly(context: context)
                         sgTasksLaunched = true
                     }

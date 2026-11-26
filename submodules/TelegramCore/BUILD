@@ -7,7 +7,6 @@ sgdeps = [
     "//Swiftgram/SGSimpleSettings:SGSimpleSettings",
     "//Swiftgram/SGWebSettingsScheme:SGWebSettingsScheme",
     "//Swiftgram/SGGHSettingsScheme:SGGHSettingsScheme",
-    "//Swiftgram/SGConfig:SGConfig",
     "//Swiftgram/SGLogging:SGLogging",
 ]
 
