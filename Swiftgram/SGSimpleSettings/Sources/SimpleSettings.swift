@@ -236,7 +236,6 @@ public class SGSimpleSettings {
 
     public enum TranslationBackend: String, CaseIterable {
         case `default`
-        case gtranslate
         case system
         // Make sure to update TranslationConfiguration
     }
@@ -327,7 +326,7 @@ public class SGSimpleSettings {
         Keys.dismissedSGSuggestions.rawValue: [],
         Keys.duckyAppIconAvailable.rawValue: true,
         Keys.transcriptionBackend.rawValue: TranscriptionBackend.default.rawValue,
-        Keys.translationBackend.rawValue: TranslationBackend.default.rawValue,
+        Keys.translationBackend.rawValue: TranslationBackend.system.rawValue,
         Keys.translatorLogsExpiration.rawValue: 0.0,
         Keys.customAppBadge.rawValue: "",
         Keys.canUseNY.rawValue: true,
@@ -656,7 +655,7 @@ extension SGSimpleSettings {
 
 extension SGSimpleSettings {
     public var translationBackendEnum: SGSimpleSettings.TranslationBackend {
-        return TranslationBackend(rawValue: translationBackend) ?? .default
+        return TranslationBackend(rawValue: translationBackend) ?? .system
     }
     
     public var transcriptionBackendEnum: SGSimpleSettings.TranscriptionBackend {

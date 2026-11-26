@@ -4645,8 +4645,6 @@ extension ChatControllerImpl {
                 if #available(iOS 18.0, *) {
                     useSystemTranslation = true
                 }
-            case .gtranslate:
-                useSystemTranslation = false
             case .default:
                 break
             }
