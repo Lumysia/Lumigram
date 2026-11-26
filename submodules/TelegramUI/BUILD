@@ -19,7 +19,6 @@ sgdeps = [
     "//Swiftgram/SGInputToolbar:SGInputToolbar",
     "//Swiftgram/SGProUI:SGProUI",
     "//Swiftgram/SGKeychainBackupManager:SGKeychainBackupManager",
-    "//Swiftgram/SGGHSettings:SGGHSettings",
     # "//Swiftgram/SGContentAnalysis:SGContentAnalysis"
 ]
 
