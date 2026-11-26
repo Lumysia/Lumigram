@@ -14,7 +14,6 @@ import TelegramUIPreferences
 // Optional
 import SGSimpleSettings
 import SGLogging
-import SGPayWall
 import OverlayStatusController
 #if DEBUG
 import FLEX
@@ -37,7 +36,6 @@ private enum SGDebugActions: String {
     case fileManager
     case clearRegDateCache
     case clearOutgoingTranslationLanguageCache
-    case restorePurchases
     case setIAP
     case resetIAP
 }
@@ -73,7 +71,6 @@ private func SGDebugControllerEntries(presentationData: PresentationData, themeS
     entries.append(.toggle(id: id.count, section: .base, settingName: .forceImmediateShareSheet, value: SGSimpleSettings.shared.forceSystemSharing, text: "Force System Share Sheet", enabled: true))
     entries.append(.toggle(id: id.count, section: .base, settingName: .bubbleMode, value: themeSettings.chatBubbleSettings.bubbleMode, text: presentationData.strings.Appearance_BubbleMode, enabled: true))
     
-    entries.append(.action(id: id.count, section: .base, actionType: .restorePurchases, text: "PayWall.RestorePurchases".i18n(presentationData.strings.baseLanguageCode), kind: .generic))
     #if DEBUG
     entries.append(.action(id: id.count, section: .base, actionType: .setIAP, text: "Set Pro", kind: .generic))
     #endif
@@ -178,15 +175,6 @@ public func sgDebugController(context: AccountContext) -> ViewController {
                 nil)
             }
             #endif
-        case .restorePurchases:
-            presentControllerImpl?(UndoOverlayController(
-                presentationData: presentationData,
-                content: .info(title: nil, text: "PayWall.Button.Restoring".i18n(args: context.sharedContext.currentPresentationData.with { $0 }.strings.baseLanguageCode), timeout: nil, customUndoText: nil),
-                elevatedLayout: false,
-                action: { _ in return false }
-            ),
-            nil)
-            context.sharedContext.SGIAP?.restorePurchases {}
         case .setIAP:
             #if DEBUG
             let updateSettingsSignal = updateSGStatusInteractively(accountManager: context.sharedContext.accountManager, { status in
