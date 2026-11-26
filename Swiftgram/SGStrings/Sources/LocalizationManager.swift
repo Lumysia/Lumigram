@@ -13,7 +13,6 @@ public class SGLocalizationManager {
     
     private let appBundle: Bundle
     private var localizations: [String: [String: String]] = [:]
-    private var webLocalizations: [String: [String: String]] = [:]
     private let fallbackMappings: [String: String] = [
         // "from": "to"
         "zh-hant": "zh-hans",
@@ -23,7 +22,7 @@ public class SGLocalizationManager {
         "sdh": "ku"
     ]
     
-    private init(fetchLocale: String = SGFallbackLocale) {
+    private init() {
         self.appBundle = getAppBundle()
         // Iterating over all the app languages and loading SGLocalizable.strings
         self.appBundle.localizations.forEach { locale in
@@ -31,8 +30,6 @@ public class SGLocalizationManager {
                 localizations[locale] = loadLocalDictionary(for: locale)
             }
         }
-        // Downloading one specific locale
-        self.downloadLocale(fetchLocale)
     }
     
     public func localizedString(_ key: String, _ locale: String = SGFallbackLocale, args: CVarArg...) -> String {
@@ -64,31 +61,6 @@ public class SGLocalizationManager {
         return dictionary
     }
     
-    public func downloadLocale(_ locale: String) {
-        #if DEBUG
-        SGLogger.shared.log("Strings", "DEBUG ignoring locale download: \(locale)")
-        if ({ return true }()) {
-            return
-        }
-        #endif
-        let sanitizedLocale = self.sanitizeLocale(locale)
-        guard let url = URL(string: self.getStringsUrl(for: sanitizedLocale)) else {
-            SGLogger.shared.log("Strings", "Invalid URL for locale: \(sanitizedLocale)")
-            return
-        }
-        
-        DispatchQueue.global(qos: .background).async {
-            if let localeDict = NSDictionary(contentsOf: url) as? [String: String] {
-                DispatchQueue.main.async {
-                    self.webLocalizations[sanitizedLocale] = localeDict
-                    SGLogger.shared.log("Strings", "Successfully downloaded locale \(sanitizedLocale)")
-                }
-            } else {
-                SGLogger.shared.log("Strings", "Failed to download \(sanitizedLocale)")
-            }
-        }
-    }
-    
     private func sanitizeLocale(_ locale: String) -> String {
         var sanitizedLocale = locale
         let rawSuffix = "-raw"
@@ -106,9 +78,6 @@ public class SGLocalizationManager {
     }
 
     private func findLocalizedString(forKey key: String, inLocale locale: String) -> String? {
-        if let string = self.webLocalizations[locale]?[key], !string.isEmpty {
-            return string
-        }
         if let string = self.localizations[locale]?[key], !string.isEmpty {
             return string
         }
@@ -116,10 +85,6 @@ public class SGLocalizationManager {
             return self.findLocalizedString(forKey: key, inLocale: fallbackLocale)
         }
         return self.localizations[SGFallbackLocale]?[key]
-    }
-
-    private func getStringsUrl(for locale: String) -> String {
-        return "https://raw.githubusercontent.com/Swiftgram/Telegram-iOS/master/Swiftgram/SGStrings/Strings/\(locale).lproj/SGLocalizable.strings"
     }
 
 }

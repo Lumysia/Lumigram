@@ -785,11 +785,6 @@ final class LocalizationListControllerNode: ViewControllerTracingNode {
                 
                     self?.context.engine.messages.refreshAttachMenuBots()
                     
-                    // MARK: Swiftgram
-                    // TODO(swiftgram): consider moving to downloadAndApplyLocalization for an app-wide strings update
-                    if let baseLanguageCode = info.baseLanguageCode {
-                        SGLocalizationManager.shared.downloadLocale(baseLanguageCode)
-                    }
 
                 }))
         }

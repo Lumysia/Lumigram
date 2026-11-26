@@ -1,7 +1,6 @@
 // MARK: Swiftgram
 
 import SGActionRequestHandlerSanitizer
-import SGGHSettings
 import SGLogging
 import SGStrings
 import SGSimpleSettings
@@ -1519,12 +1518,6 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                     #endif
                     //
                     
-                    // MARK: Swiftgram
-                    updateSGGHSettingsInteractivelly(context: context.context)
-                    let _ = (context.context.sharedContext.presentationData.start(next: { presentationData in
-                        SGLocalizationManager.shared.downloadLocale(presentationData.strings.baseLanguageCode)
-                    }))
-                    //
                     
                 }))
             } else {
@@ -2207,7 +2200,6 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     func runForegroundTasks() {
         
         
-        var sgTasksLaunched: Bool = false // MARK: Swiftgram
         
         let _ = (self.sharedContextPromise.get()
         |> take(1)
@@ -2216,12 +2208,6 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
              |> take(1)
              |> deliverOnMainQueue).start(next: { activeAccounts in
                 for (_, context, _) in activeAccounts.accounts {
-                    // MARK: Swiftgram
-                    if !sgTasksLaunched {
-                        updateSGGHSettingsInteractivelly(context: context)
-                        sgTasksLaunched = true
-                    }
-                    //
                     (context.downloadedMediaStoreManager as? DownloadedMediaStoreManagerImpl)?.runTasks()
                 }
             })
