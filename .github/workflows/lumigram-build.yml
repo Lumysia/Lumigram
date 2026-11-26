@@ -1,0 +1,203 @@
+name: Lumigram build
+
+# No pull_request triggers: workflows here use the signing secrets and the
+# Bazel cache, so only people with write access can start them.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - LICENSE
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: Upload to TestFlight
+        type: boolean
+        default: true
+      keep_going:
+        description: Keep compiling after the first failure
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        default: main
+    secrets:
+      TELEGRAM_API_ID: { required: true }
+      TELEGRAM_API_HASH: { required: true }
+      APPLE_TEAM_ID: { required: true }
+      ASC_KEY_ID: { required: true }
+      ASC_ISSUER_ID: { required: true }
+      ASC_KEY_P8: { required: true }
+      DIST_CERT_P12: { required: true }
+      DIST_CERT_PASSWORD: { required: true }
+      BUILD_INPUTS_DEPLOY_KEY: { required: true }
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lumigram-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: xcode-27
+    timeout-minutes: 300
+    env:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+      UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          submodules: recursive
+
+      - name: Select the pinned Xcode
+        id: xcode
+        run: |
+          set -euo pipefail
+          version="$(python3 -c 'import json; print(json.load(open("versions.json"))["xcode"])')"
+          sudo xcode-select -s "/Applications/Xcode_${version}.app/Contents/Developer"
+          test "$(xcodebuild -version | awk '/^Xcode / {print $2}')" = "$version"
+          echo "build=$(xcodebuild -version | awk '/^Build version / {print $3}')" >> "$GITHUB_OUTPUT"
+          xcodebuild -downloadComponent MetalToolchain
+
+      - name: Fetch the private build inputs
+        env:
+          DEPLOY_KEY: ${{ secrets.BUILD_INPUTS_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          key="$RUNNER_TEMP/build-inputs-key"
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          chmod 600 "$key"
+          GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git clone --quiet --depth 1 git@github.com:Lumysia/lumigram-build.git "$RUNNER_TEMP/build-inputs"
+          rm -f "$key"
+          git apply --whitespace=nowarn "$RUNNER_TEMP/build-inputs/pro.patch" > /dev/null 2>&1 \
+            || { echo "::error::The private patch no longer applies."; exit 1; }
+
+      - name: Write the build configuration
+        env:
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p build-input/codesigning/profiles build-input/codesigning/certs
+          python3 - "$RUNNER_TEMP/build-inputs/configuration.template.json" build-input/configuration.json <<'PY'
+          import os, string, sys
+          template = string.Template(open(sys.argv[1]).read())
+          open(sys.argv[2], "w").write(template.substitute(os.environ))
+          PY
+          python3 -c 'import json; print("BUNDLE_ID=" + json.load(open("build-input/configuration.json"))["bundle_id"])' >> "$GITHUB_ENV"
+          cat > local.bazelrc <<'RC'
+          build --features=no_include_scanning
+          build --host_features=no_include_scanning
+          build --copt=-Wno-error
+          build --cxxopt=-Wno-error
+          build --objccopt=-Wno-error
+          build --@build_bazel_rules_swift//swift:copt=-no-warnings-as-errors
+          RC
+
+      - name: Import the distribution certificate
+        env:
+          DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
+          DIST_CERT_PASSWORD: ${{ secrets.DIST_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          keychain_password="$(uuidgen)"
+          printf '%s' "$DIST_CERT_P12" | base64 --decode > "$RUNNER_TEMP/dist.p12"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$RUNNER_TEMP/dist.p12" -k "$keychain" -P "$DIST_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security import build-system/AppleWWDRCAG3.cer -k "$keychain" -T /usr/bin/codesign || true
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/dist.p12"
+
+      - name: Write the App Store Connect key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os
+          path = os.path.join(os.environ["RUNNER_TEMP"], "asc_key.json")
+          json.dump({"key_id": os.environ["ASC_KEY_ID"], "issuer_id": os.environ["ASC_ISSUER_ID"],
+                     "key": os.environ["ASC_KEY_P8"], "in_house": False}, open(path, "w"))
+          os.chmod(path, 0o600)
+          PY
+
+      - name: Download the provisioning profiles
+        run: |
+          set -euo pipefail
+          while IFS=: read -r suffix file; do
+            fastlane run get_provisioning_profile api_key_path:"$RUNNER_TEMP/asc_key.json" \
+              app_identifier:"${BUNDLE_ID}${suffix}" platform:ios readonly:false \
+              output_path:build-input/codesigning/profiles filename:"$file" > /dev/null \
+              || { echo "::error::No profile for ${BUNDLE_ID}${suffix}"; exit 1; }
+          done <<'PROFILES'
+          :Telegram.mobileprovision
+          .Share:Share.mobileprovision
+          .Widget:Widget.mobileprovision
+          .NotificationContent:NotificationContent.mobileprovision
+          .NotificationService:NotificationService.mobileprovision
+          .SiriIntents:Intents.mobileprovision
+          .BroadcastUpload:BroadcastUpload.mobileprovision
+          PROFILES
+
+      - name: Restore the Bazel cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/bazel-cache
+          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.sha }}
+          restore-keys: |
+            bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-
+            bazel-${{ steps.xcode.outputs.build }}-
+
+      - name: Build
+        id: build
+        run: |
+          set -euo pipefail
+          build_number=$(( ($(date -u +%s) - 1767225600) / 60 ))
+          echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          python3 -u build-system/Make/Make.py \
+            --cacheDir "$HOME/bazel-cache" \
+            build ${{ inputs.keep_going && '--continueOnError' || '' }} \
+            --configurationPath build-input/configuration.json \
+            --codesigningInformationPath build-input/codesigning \
+            --buildNumber="$build_number" \
+            --configuration=release_arm64 \
+            --outputBuildArtifactsPath build/artifacts
+
+      - name: Save the Bazel cache
+        if: always() && steps.build.outcome != 'skipped'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/bazel-cache
+          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.sha }}-${{ github.run_attempt }}
+
+      - name: Check that removed hosts are gone
+        run: .github/scripts/check-removed-hosts.sh build/artifacts/Swiftgram.ipa
+
+      - name: Upload to TestFlight
+        if: env.UPLOAD == 'true'
+        run: |
+          set -euo pipefail
+          fastlane pilot upload --api_key_path "$RUNNER_TEMP/asc_key.json" \
+            --ipa build/artifacts/Swiftgram.ipa --app_identifier "$BUNDLE_ID" \
+            --skip_submission true --skip_waiting_for_build_processing true \
+            --uses_non_exempt_encryption false
+
+      - name: Clean up signing material
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/asc_key.json"
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true

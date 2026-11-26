@@ -1,0 +1,72 @@
+name: Lumigram sync
+
+# Merges the newest Swiftgram release branch into main, then builds and uploads.
+# A merge that needs a human opens (or updates) an issue labelled "sync-conflict".
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: lumigram-sync
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    outputs:
+      merged: ${{ steps.merge.outputs.merged }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge the newest Swiftgram release
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add swiftgram https://github.com/Swiftgram/Telegram-iOS.git
+          git fetch --quiet swiftgram 'refs/heads/release/*:refs/remotes/swiftgram/release/*'
+          branch="$(git for-each-ref --format='%(refname:short)' 'refs/remotes/swiftgram/release/' \
+            | sed 's|^swiftgram/release/||' | sort -V | tail -1)"
+          ref="swiftgram/release/$branch"
+          echo "Newest Swiftgram release: $branch ($(git rev-parse --short "$ref"))"
+          if git merge-base --is-ancestor "$ref" HEAD; then
+            echo "merged=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git merge --no-edit -m "Merge Swiftgram release $branch" "$ref"; then
+            git push origin HEAD:main
+            echo "merged=true" >> "$GITHUB_OUTPUT"
+            gh issue list --label sync-conflict --state open --json number --jq '.[].number' \
+              | xargs -r -I{} gh issue close {} --comment "Merged $branch."
+            exit 0
+          fi
+          conflicts="$(git diff --name-only --diff-filter=U)"
+          git merge --abort
+          body="$(printf 'Merging Swiftgram release `%s` (%s) into main needs a manual merge.\n\nConflicting files:\n\n```\n%s\n```\n' \
+            "$branch" "$(git rev-parse --short "$ref")" "$conflicts")"
+          gh label create sync-conflict --color B60205 --force > /dev/null
+          existing="$(gh issue list --label sync-conflict --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "Swiftgram $branch needs a manual merge" --label sync-conflict --body "$body"
+          fi
+          exit 1
+
+  build:
+    needs: merge
+    if: needs.merge.outputs.merged == 'true'
+    uses: ./.github/workflows/lumigram-build.yml
+    with:
+      ref: main
+    secrets: inherit
