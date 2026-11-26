@@ -21,7 +21,8 @@ class BuildConfiguration:
         app_specific_url_scheme,
         premium_iap_product_id,
         enable_siri,
-        enable_icloud
+        enable_icloud,
+        app_name
     ):
         self.sg_config = sg_config
         self.bundle_id = bundle_id
@@ -35,6 +36,7 @@ class BuildConfiguration:
         self.premium_iap_product_id = premium_iap_product_id
         self.enable_siri = enable_siri
         self.enable_icloud = enable_icloud
+        self.app_name = app_name
 
     def write_to_variables_file(self, bazel_path, use_xcode_managed_codesigning, aps_environment, path):
         string = ''
@@ -53,6 +55,7 @@ class BuildConfiguration:
         string += 'telegram_aps_environment = "{}"\n'.format(aps_environment)
         string += 'telegram_enable_siri = {}\n'.format(self.enable_siri)
         string += 'telegram_enable_icloud = {}\n'.format(self.enable_icloud)
+        string += 'telegram_app_name = "{}"\n'.format(self.app_name)
         string += 'telegram_enable_watch = True\n'
 
         if os.path.exists(path):
@@ -97,6 +100,7 @@ def build_configuration_from_json(path):
             premium_iap_product_id=configuration_dict['premium_iap_product_id'],
             enable_siri=configuration_dict['enable_siri'],
             enable_icloud=configuration_dict['enable_icloud'],
+            app_name=configuration_dict.get('app_name', 'Swiftgram'),
         )
 
 
