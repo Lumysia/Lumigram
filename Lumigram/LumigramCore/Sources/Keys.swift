@@ -7,4 +7,5 @@ public extension LumigramSettings.Keys {
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let showUserInfo = LumigramSettings.Key<Bool>("showUserInfo", default: true)
     static let filterWords = LumigramSettings.Key<[String]>("filterWords", default: [])
+    static let silentPinnedNotifications = LumigramSettings.Key<Bool>("silentPinnedNotifications", default: false)
 }

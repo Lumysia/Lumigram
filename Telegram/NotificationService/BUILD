@@ -9,6 +9,7 @@ swift_library(
         "Sources/*.swift",
     ]),
     deps = [
+        "//Lumigram/LumigramCore:LumigramCore",
         "//submodules/Postbox:Postbox",
         "//submodules/TelegramCore:TelegramCore",
         "//submodules/BuildConfig:BuildConfig",

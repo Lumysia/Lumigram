@@ -42,6 +42,8 @@ public struct LumigramStrings {
             zh: "包含其中任何一项的收到的消息不会在聊天中显示。"
         )
     }
+    public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
+    public var silentPinnedNotifications: String { self.text("Silent Pinned Message Alerts", zh: "置顶消息通知静音") }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {
