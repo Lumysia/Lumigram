@@ -13,6 +13,7 @@ private let sourceCodeUrl = "https://github.com/Lumysia/Lumigram"
 private struct Section {
     enum Row {
         case toggle(String, LumigramSettings.Key<Bool>)
+        case shown(String, unlessIn: LumigramSettings.Key<[String]>, id: String)
         case lines(placeholder: String, LumigramSettings.Key<[String]>)
         case option(String, LumigramSettings.Key<String>, value: String)
         case link(String, url: String)
@@ -24,7 +25,7 @@ private struct Section {
 }
 
 /// Every Lumigram setting, in screen order. A feature adds its rows here.
-private func sections(_ strings: LumigramStrings) -> [Section] {
+private func sections(_ strings: LumigramStrings, _ presentationStrings: PresentationStrings) -> [Section] {
     return [
         Section(header: strings.chatsHeader, rows: [
             .toggle(strings.secondsInTimestamps, .secondsInTimestamps),
@@ -36,6 +37,9 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .option(strings.doubleTapReply, .doubleTapAction, value: LumigramDoubleTapAction.reply.rawValue),
             .option(strings.doubleTapNothing, .doubleTapAction, value: LumigramDoubleTapAction.nothing.rawValue),
         ], footer: nil),
+        Section(header: strings.messageMenuHeader, rows: LumigramMenuItem.allCases.map { item in
+            Section.Row.shown(item.titles(presentationStrings)[0], unlessIn: .hiddenMenuItems, id: item.rawValue)
+        }, footer: nil),
         Section(header: strings.stickerSizeHeader, rows: [
             .option(strings.stickerSizeDefault, .stickerSize, value: "default"),
             .option(strings.stickerSizeMedium, .stickerSize, value: "medium"),
@@ -63,6 +67,7 @@ private struct Entry: ItemListNodeEntry {
     enum Content: Equatable {
         case header(String)
         case toggle(String, LumigramSettings.Key<Bool>, Bool)
+        case shown(String, LumigramSettings.Key<[String]>, id: String, Bool)
         case lines(placeholder: String, LumigramSettings.Key<[String]>, String)
         case option(String, LumigramSettings.Key<String>, value: String, isSelected: Bool)
         case link(String, url: String)
@@ -85,6 +90,10 @@ private struct Entry: ItemListNodeEntry {
         case let .toggle(title, key, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
                 LumigramSettings.shared[key] = value
+            })
+        case let .shown(title, key, id, value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
+                LumigramSettings.shared[key] = LumigramSettings.shared[key].filter { $0 != id } + (value ? [] : [id])
             })
         case let .lines(placeholder, key, text):
             return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: placeholder, maxLength: nil, sectionId: self.section, style: .blocks, capitalization: false, autocorrection: false, textUpdated: { text in
@@ -118,6 +127,8 @@ private func entries(_ sections: [Section]) -> [Entry] {
             switch row {
             case let .toggle(title, key):
                 append(.toggle(title, key, LumigramSettings.shared[key]))
+            case let .shown(title, key, id):
+                append(.shown(title, key, id: id, !LumigramSettings.shared[key].contains(id)))
             case let .lines(placeholder, key):
                 append(.lines(placeholder: placeholder, key, LumigramSettings.shared[key].joined(separator: "\n")))
             case let .option(title, key, value):
@@ -142,7 +153,7 @@ public func lumigramSettingsScreen(context: AccountContext) -> ViewController {
     |> map { presentationData, _ -> (ItemListControllerState, (ItemListNodeState, Any)) in
         let strings = LumigramStrings(presentationData.strings)
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(strings.settingsTitle), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
-        let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries(sections(strings)), style: .blocks, animateChanges: false)
+        let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries(sections(strings, presentationData.strings)), style: .blocks, animateChanges: false)
         return (controllerState, (listState, openUrl as Any))
     }
     return ItemListController(context: context, state: signal)

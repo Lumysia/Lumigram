@@ -41,6 +41,7 @@ import AdsInfoScreen
 import AdsReportScreen
 import WalletContext
 import WalletSendScreen
+import LumigramUI
  
 private struct MessageContextMenuData {
     let starStatus: Bool?
@@ -2528,7 +2529,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             }
         }
         
-        return ContextController.Items(content: .list(actions), tip: nil)
+        return ContextController.Items(content: .list(lumigramMessageMenu(actions, strings: chatPresentationInterfaceState.strings)), tip: nil) // MARK: Lumigram
     }
 }
 

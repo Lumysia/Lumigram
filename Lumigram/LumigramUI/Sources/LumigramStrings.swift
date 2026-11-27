@@ -24,6 +24,7 @@ public struct LumigramStrings {
     public var doubleTapReaction: String { self.text("Send Reaction", zh: "发送回应") }
     public var doubleTapReply: String { self.text("Reply", zh: "回复") }
     public var doubleTapNothing: String { self.text("Nothing", zh: "无操作") }
+    public var messageMenuHeader: String { self.text("Message Menu", zh: "消息菜单") }
     public var stickerSizeHeader: String { self.text("Sticker Size", zh: "贴纸大小") }
     public var stickerSizeDefault: String { self.text("Default", zh: "默认") }
     public var stickerSizeMedium: String { self.text("Medium", zh: "中") }
