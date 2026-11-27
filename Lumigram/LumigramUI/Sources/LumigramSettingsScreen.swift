@@ -33,6 +33,7 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .toggle(strings.aiButton, .aiButton),
             .toggle(strings.hideReactions, .hideReactions),
             .toggle(strings.nextChannelSwipe, .nextChannelSwipe),
+            .toggle(strings.hideChannelBar, .hideChannelBar),
         ], footer: nil),
         Section(header: strings.chatListHeader, rows: [.toggle(strings.hideStories, .hideStories)], footer: strings.appliesAfterRestart),
         Section(header: strings.profilesHeader, rows: [.toggle(strings.showUserInfo, .showUserInfo)], footer: strings.showUserInfoFooter),

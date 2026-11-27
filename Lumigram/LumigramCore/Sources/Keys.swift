@@ -8,6 +8,7 @@ public extension LumigramSettings.Keys {
     static let aiButton = LumigramSettings.Key<Bool>("aiButton", default: true)
     static let hideReactions = LumigramSettings.Key<Bool>("hideReactions", default: false)
     static let nextChannelSwipe = LumigramSettings.Key<Bool>("nextChannelSwipe", default: true)
+    static let hideChannelBar = LumigramSettings.Key<Bool>("hideChannelBar", default: false)
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let showUserInfo = LumigramSettings.Key<Bool>("showUserInfo", default: true)
     static let silentPinnedNotifications = LumigramSettings.Key<Bool>("silentPinnedNotifications", default: false)
