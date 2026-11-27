@@ -66,6 +66,7 @@ load(
     "telegram_enable_icloud",
     "telegram_enable_siri",
     "telegram_app_name",
+    "telegram_associated_domains",
 )
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
@@ -530,7 +531,14 @@ icloud_fragment = "" if not telegram_enable_icloud else """
 )
 
 # MARK: Swiftgram
-associated_domains_fragment = "" if telegram_bundle_id not in official_bundle_ids else """
+# Other bundle IDs get the associated_domains listed in the build configuration.
+configured_associated_domains_fragment = "" if not telegram_associated_domains else """
+<key>com.apple.developer.associated-domains</key>
+<array>
+{}
+</array>
+""".format("\n".join(["    <string>{}</string>".format(domain) for domain in telegram_associated_domains]))
+associated_domains_fragment = configured_associated_domains_fragment if telegram_bundle_id not in official_bundle_ids else """
 <key>com.apple.developer.associated-domains</key>
 <array>
     <string>applinks:telegram.me</string>

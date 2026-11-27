@@ -13,3 +13,4 @@ telegram_enable_siri = True
 telegram_enable_icloud = True
 telegram_enable_watch = True
 telegram_app_name = "Swiftgram"
+telegram_associated_domains = []
