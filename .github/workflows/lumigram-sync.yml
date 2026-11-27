@@ -43,7 +43,8 @@ jobs:
             echo "merged=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if git merge --no-edit -m "Merge Swiftgram release $branch" "$ref"; then
+          if git merge --no-edit -m "Merge Swiftgram release $branch" "$ref" \
+            || { .github/scripts/resolve-fork-owned.sh && git commit --no-edit --quiet; }; then
             git push origin HEAD:main
             echo "merged=true" >> "$GITHUB_OUTPUT"
             gh issue list --label sync-conflict --state open --json number --jq '.[].number' \
