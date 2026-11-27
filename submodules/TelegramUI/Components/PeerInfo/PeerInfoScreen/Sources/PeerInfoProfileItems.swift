@@ -249,8 +249,8 @@ func infoItems(
                 }))
             }
             // MARK: Lumigram
-            for (index, row) in lumigramUserInfoRows(userId: user.id.id._internalGetInt64Value(), datacenterId: (user.photo.first?.resource as? CloudPeerPhotoSizeMediaResource)?.datacenterId, strings: presentationData.strings).enumerated() {
-                items[currentPeerInfoSection]!.append(PeerInfoScreenLabeledValueItem(id: 20000 + index, label: row.label, text: row.text, action: { _, _ in UIPasteboard.general.string = row.text }, requestLayout: { _ in }))
+            for (index, row) in lumigramUserInfoRows(userId: user.id.id._internalGetInt64Value(), datacenterId: (user.photo.first?.resource as? CloudPeerPhotoSizeMediaResource)?.datacenterId, isMutualContact: !isMyProfile && user.id != context.account.peerId && user.flags.contains(.mutualContact), strings: presentationData.strings).enumerated() {
+                items[currentPeerInfoSection]!.append(PeerInfoScreenLabeledValueItem(id: 20000 + index, label: row.label, text: row.text, action: row.copyable ? { _, _ in UIPasteboard.general.string = row.text } : nil, requestLayout: { _ in }))
             }
             
             var hasAbout = false
