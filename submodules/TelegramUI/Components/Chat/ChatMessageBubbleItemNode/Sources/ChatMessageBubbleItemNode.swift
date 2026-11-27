@@ -89,6 +89,7 @@ import TelegramAnimatedStickerNode
 import AvatarNode
 import ChatMessageSuggestedPostInfoNode
 import PremiumAlertController
+import LumigramCore
 
 /// Without bubbles, the time after the author's name (and a post's views after it), as offsets from the end of the name.
 private struct BubblelessHeaderTime {
@@ -2208,6 +2209,9 @@ public class ChatMessageBubbleItemNode: ChatMessageItemView, ChatMessagePreviewI
         // keeps its close and more buttons there.
         if bubbleStyle.isBubbleless && !isAd {
             needsShareButton = false
+        }
+        if lumigramWidensChannelPost(item.message) { // MARK: Lumigram
+            (needsShareButton, needsSummarizeButton, allowFullWidth) = (false, false, true)
         }
 
         var tmpWidth: CGFloat

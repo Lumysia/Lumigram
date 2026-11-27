@@ -7,6 +7,7 @@ public extension LumigramSettings.Keys {
     static let doubleTapAction = LumigramSettings.Key<String>("doubleTapAction", default: LumigramDoubleTapAction.reaction.rawValue)
     static let hiddenMenuItems = LumigramSettings.Key<[String]>("hiddenMenuItems", default: [])
     static let hideReactions = LumigramSettings.Key<Bool>("hideReactions", default: false)
+    static let wideChannelPosts = LumigramSettings.Key<Bool>("wideChannelPosts", default: false)
     static let stickerSize = LumigramSettings.Key<String>("stickerSize", default: "default")
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let confirmStories = LumigramSettings.Key<Bool>("confirmStories", default: false)
