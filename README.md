@@ -8,9 +8,9 @@ servers of our own, no accounts, no purchases.
 
 - Its own name, icons and intro.
 - Chats and voice messages are translated and transcribed on the device, without Premium.
-- A Lumigram page in Settings with a handful of options: seconds in message times, send with Return, the deletion
-  animation, hiding the stories bar, IDs and mutual contacts on profiles, quieter notifications, link previews and
-  asking before calls.
+- A Lumigram page in Settings with options for chats (seconds in message times, send with Return, hiding reactions,
+  the AI button or a channel's bottom bar, and more), stories, profiles (IDs, mutual contacts), quieter
+  notifications, privacy (link previews, asking before calls) and faster uploads and downloads.
 - Passkeys work with Lumigram's own domain.
 
 Lumigram doesn't try to match other clients feature for feature. Options that would need bigger changes inside
