@@ -31,6 +31,10 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
         ], footer: nil),
         Section(header: strings.chatListHeader, rows: [.toggle(strings.hideStories, .hideStories)], footer: strings.appliesAfterRestart),
         Section(header: strings.profilesHeader, rows: [.toggle(strings.showUserInfo, .showUserInfo)], footer: strings.showUserInfoFooter),
+        Section(header: strings.notificationsHeader, rows: [
+            .toggle(strings.silentPinnedNotifications, .silentPinnedNotifications),
+            .toggle(strings.silentMentionNotifications, .silentMentionNotifications),
+        ], footer: strings.notificationsFooter),
         Section(header: strings.aboutHeader, rows: [.link(strings.sourceCode, url: sourceCodeUrl)], footer: strings.aboutFooter),
     ]
 }
