@@ -35,6 +35,10 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .toggle(strings.silentPinnedNotifications, .silentPinnedNotifications),
             .toggle(strings.silentMentionNotifications, .silentMentionNotifications),
         ], footer: strings.notificationsFooter),
+        Section(header: strings.privacyHeader, rows: [
+            .toggle(strings.linkPreviews, .linkPreviews),
+            .toggle(strings.confirmCalls, .confirmCalls),
+        ], footer: strings.privacyFooter),
         Section(header: strings.aboutHeader, rows: [.link(strings.sourceCode, url: sourceCodeUrl)], footer: strings.aboutFooter),
     ]
 }

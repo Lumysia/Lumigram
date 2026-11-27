@@ -8,4 +8,6 @@ public extension LumigramSettings.Keys {
     static let showUserInfo = LumigramSettings.Key<Bool>("showUserInfo", default: true)
     static let silentPinnedNotifications = LumigramSettings.Key<Bool>("silentPinnedNotifications", default: false)
     static let silentMentionNotifications = LumigramSettings.Key<Bool>("silentMentionNotifications", default: false)
+    static let linkPreviews = LumigramSettings.Key<Bool>("linkPreviews", default: false)
+    static let confirmCalls = LumigramSettings.Key<Bool>("confirmCalls", default: true)
 }

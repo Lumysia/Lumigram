@@ -18,6 +18,7 @@ import ComponentFlow
 import ComponentDisplayAdapters
 import ChatTitleView
 import EmojiStatusComponent
+import LumigramCore
 
 extension ChatControllerImpl {
     func updateRightNavigationButtons(presentationInterfaceState: ChatPresentationInterfaceState, transition: ContainedViewLayoutTransition) {
@@ -308,6 +309,7 @@ func updateChatPresentationInterfaceStateImpl(
         }
     }
     
+    canHaveUrlPreview = canHaveUrlPreview && LumigramSettings.shared[.linkPreviews] // MARK: Lumigram
     if canHaveUrlPreview, let (updatedUrlPreviewState, updatedUrlPreviewSignal) = urlPreviewStateForInputText(updatedChatPresentationInterfaceState.interfaceState.composeInputState.inputText, context: selfController.context, currentQuery: selfController.urlPreviewQueryState?.0, forPeerId: selfController.chatLocation.peerId) {
         selfController.urlPreviewQueryState?.1.dispose()
         var inScope = true

@@ -43,6 +43,18 @@ public struct LumigramStrings {
             zh: "这些通知仍会显示，只是没有声音。提及和回复也包括已静音聊天中的。"
         )
     }
+    public var privacyHeader: String { self.text("Privacy", zh: "隐私") }
+    public var linkPreviews: String { self.text("Link Previews", zh: "链接预览") }
+    public var confirmCalls: String { self.text("Ask Before Calling", zh: "拨打前确认") }
+    public var privacyFooter: String {
+        self.text(
+            "With link previews off, links you send don't get a preview card, so no preview is fetched for them.",
+            zh: "关闭链接预览后，你发送的链接不会生成预览卡片，也不会为它们抓取预览。"
+        )
+    }
+    public var confirmCall: String { self.text("Start a voice call?", zh: "要发起语音通话吗？") }
+    public var confirmVideoCall: String { self.text("Start a video call?", zh: "要发起视频通话吗？") }
+    public var call: String { self.text("Call", zh: "呼叫") }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {

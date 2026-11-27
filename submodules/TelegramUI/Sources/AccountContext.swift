@@ -31,6 +31,7 @@ import WalletConnectScreen
 import AlertUI
 import MetalEngine
 import MessageWidget
+import LumigramUI
 
 private final class DeviceSpecificContactImportContext {
     let disposable = MetaDisposable()
@@ -1009,6 +1010,9 @@ public final class AccountContextImpl: AccountContext {
     }
     
     public func requestCall(peerId: EnginePeer.Id, isVideo: Bool, completion: @escaping () -> Void) {
+        if lumigramAsksBeforeCalling(context: self, isVideo: isVideo, call: { [weak self] in self?.requestCall(peerId: peerId, isVideo: isVideo, completion: completion) }) { // MARK: Lumigram
+            return
+        }
         guard let callResult = self.sharedContext.callManager?.requestCall(context: self, peerId: peerId, isVideo: isVideo, endCurrentIfAny: false) else {
             return
         }
