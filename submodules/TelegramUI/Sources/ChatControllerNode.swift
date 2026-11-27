@@ -78,6 +78,7 @@ import InstantPageUI
 import ChatRichTextEditorComposer
 import ChatHistoryListViewBackend
 import MessageWidget
+import LumigramCore
 import TabBarLayout
 
 final class VideoNavigationControllerDropContentItem: NavigationControllerDropContentItem {
@@ -5447,6 +5448,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                                 } else {
                                     attributes.append(WebpagePreviewMessageAttribute(leadingPreview: !urlPreview.positionBelowText, forceLargeMedia: urlPreview.largeMedia, isManuallyAdded: true, isSafe: false))
                                 }
+                            } else if !LumigramSettings.shared[.linkPreviews] { // MARK: Lumigram
+                                attributes.append(OutgoingContentInfoMessageAttribute(flags: [.disableLinkPreviews]))
                             }
                             
                             var bubbleUpEmojiOrStickersets: [ItemCollectionId] = []
