@@ -58,7 +58,10 @@ private func sections(_ strings: LumigramStrings, _ presentationStrings: Present
             .lines(placeholder: strings.filterPlaceholder, .filterWords),
             .toggle(strings.hideBlockedMessages, .hideBlockedMessages),
         ], footer: strings.filterFooter),
-        Section(header: strings.notificationsHeader, rows: [.toggle(strings.silentPinnedNotifications, .silentPinnedNotifications)], footer: nil),
+        Section(header: strings.notificationsHeader, rows: [
+            .toggle(strings.silentPinnedNotifications, .silentPinnedNotifications),
+            .toggle(strings.silentMentionNotifications, .silentMentionNotifications),
+        ], footer: strings.notificationsFooter),
         Section(header: strings.privacyHeader, rows: [
             .toggle(strings.linkPreviews, .linkPreviews),
             .toggle(strings.confirmCalls, .confirmCalls),

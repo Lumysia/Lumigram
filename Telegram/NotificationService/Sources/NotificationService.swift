@@ -1340,7 +1340,7 @@ private final class NotificationServiceHandler {
                             } else if let sound = aps["sound"] as? String {
                                 content.sound = sound
                             }
-                            if let locKey = payloadJson["loc-key"] as? String, locKey.hasPrefix("PINNED_"), LumigramSettings.shared[.silentPinnedNotifications] { // MARK: Lumigram
+                            if lumigramSilencesNotification(payloadJson) { // MARK: Lumigram
                                 content.sound = nil
                             }
 

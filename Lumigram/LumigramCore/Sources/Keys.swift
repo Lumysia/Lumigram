@@ -17,6 +17,7 @@ public extension LumigramSettings.Keys {
     static let filterWords = LumigramSettings.Key<[String]>("filterWords", default: [])
     static let hideBlockedMessages = LumigramSettings.Key<Bool>("hideBlockedMessages", default: false)
     static let silentPinnedNotifications = LumigramSettings.Key<Bool>("silentPinnedNotifications", default: false)
+    static let silentMentionNotifications = LumigramSettings.Key<Bool>("silentMentionNotifications", default: false)
     static let linkPreviews = LumigramSettings.Key<Bool>("linkPreviews", default: false)
     static let confirmCalls = LumigramSettings.Key<Bool>("confirmCalls", default: true)
 }
