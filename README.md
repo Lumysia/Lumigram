@@ -48,7 +48,9 @@ git clone --recursive -j8 https://github.com/Lumysia/Lumigram.git
 ### Configuration
 
 Copy `build-system/template_minimal_development_configuration.json` and fill in your bundle id, api_id, api_hash and
-team id. `app_name` sets the name shown on the home screen; it defaults to `Swiftgram`.
+team id. `app_name` sets the name shown on the home screen; it defaults to `Swiftgram`. `associated_domains` is an
+optional list of entitlement entries such as `webcredentials:example.com`; a `webcredentials` domain that serves an
+`apple-app-site-association` file for your app turns passkeys on.
 
 ### Xcode project
 
