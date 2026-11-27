@@ -1,0 +1,24 @@
+{
+  "icons": [
+    { "name": "LGDefault", "default": true },
+    { "name": "LGLight", "title": "Light", "bordered": true },
+    { "name": "LGDark", "title": "Dark" },
+    { "name": "LGTrans", "title": "Trans" },
+    { "name": "LGPride", "title": "Pride" },
+    { "name": "LGBisexual", "title": "Bisexual" },
+    { "name": "LGLesbian", "title": "Lesbian" },
+    { "name": "LGNonbinary", "title": "Nonbinary" },
+    { "name": "LGPansexual", "title": "Pansexual" }
+  ],
+  "badges": [
+    { "title": "Default", "asset": "Components/AppBadge" },
+    { "title": "Light", "asset": "LightAppBadge" },
+    { "title": "Dark", "asset": "DarkAppBadge" },
+    { "title": "Trans", "asset": "TransAppBadge" },
+    { "title": "Pride", "asset": "PrideAppBadge" },
+    { "title": "Bisexual", "asset": "BisexualAppBadge" },
+    { "title": "Lesbian", "asset": "LesbianAppBadge" },
+    { "title": "Nonbinary", "asset": "NonbinaryAppBadge" },
+    { "title": "Pansexual", "asset": "PansexualAppBadge" }
+  ]
+}

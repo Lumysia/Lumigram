@@ -1,52 +1,60 @@
 import Foundation
 
-// The app icons and app badges offered in settings, in picker order. This is
-// the only list: add or drop a look here and add or delete its files.
+// The app icons and app badges offered in settings come from
+// Telegram/Telegram-iOS/Resources/LumigramArtwork.json, in picker order, so
+// adding or dropping a look changes resources only and recompiles nothing.
 // Icons: Telegram/Telegram-iOS/<name>.alticon/<name>@2x.png and @3x.png (every
 // LG*.alticon folder is bundled). Badges: an imageset in
 // Swiftgram/SGAppBadgeAssets/Images.xcassets/ named after the asset.
 
-public struct LumigramAppIcon {
+public struct LumigramAppIcon: Sendable {
     public let name: String
     /// nil shows the localized "Default" title.
     public let title: String?
     /// A thin border for icons that are near-white.
     public let bordered: Bool
     public let isDefault: Bool
-
-    init(_ name: String, _ title: String?, bordered: Bool = false, isDefault: Bool = false) {
-        self.name = name
-        self.title = title
-        self.bordered = bordered
-        self.isDefault = isDefault
-    }
 }
 
-public struct LumigramAppBadge {
+public struct LumigramAppBadge: Sendable {
     public let title: String
     public let assetName: String
 }
 
-public let lumigramAppIcons: [LumigramAppIcon] = [
-    LumigramAppIcon("LGDefault", nil, isDefault: true),
-    LumigramAppIcon("LGLight", "Light", bordered: true),
-    LumigramAppIcon("LGDark", "Dark"),
-    LumigramAppIcon("LGTrans", "Trans"),
-    LumigramAppIcon("LGPride", "Pride"),
-    LumigramAppIcon("LGBisexual", "Bisexual"),
-    LumigramAppIcon("LGLesbian", "Lesbian"),
-    LumigramAppIcon("LGNonbinary", "Nonbinary"),
-    LumigramAppIcon("LGPansexual", "Pansexual"),
-]
+private struct ArtworkFile: Decodable {
+    struct Icon: Decodable {
+        let name: String
+        let title: String?
+        let bordered: Bool?
+        let isDefault: Bool?
 
-public let lumigramAppBadges: [LumigramAppBadge] = [
-    LumigramAppBadge(title: "Default", assetName: "Components/AppBadge"),
-    LumigramAppBadge(title: "Light", assetName: "LightAppBadge"),
-    LumigramAppBadge(title: "Dark", assetName: "DarkAppBadge"),
-    LumigramAppBadge(title: "Trans", assetName: "TransAppBadge"),
-    LumigramAppBadge(title: "Pride", assetName: "PrideAppBadge"),
-    LumigramAppBadge(title: "Bisexual", assetName: "BisexualAppBadge"),
-    LumigramAppBadge(title: "Lesbian", assetName: "LesbianAppBadge"),
-    LumigramAppBadge(title: "Nonbinary", assetName: "NonbinaryAppBadge"),
-    LumigramAppBadge(title: "Pansexual", assetName: "PansexualAppBadge"),
-]
+        enum CodingKeys: String, CodingKey {
+            case name, title, bordered
+            case isDefault = "default"
+        }
+    }
+
+    struct Badge: Decodable {
+        let title: String
+        let asset: String
+    }
+
+    let icons: [Icon]
+    let badges: [Badge]
+}
+
+private func loadArtworkFile() -> ArtworkFile? {
+    guard let url = Bundle.main.url(forResource: "LumigramArtwork", withExtension: "json"),
+          let data = try? Data(contentsOf: url) else {
+        return nil
+    }
+    return try? JSONDecoder().decode(ArtworkFile.self, from: data)
+}
+
+public let lumigramAppIcons: [LumigramAppIcon] = (loadArtworkFile()?.icons ?? []).map {
+    LumigramAppIcon(name: $0.name, title: $0.title, bordered: $0.bordered ?? false, isDefault: $0.isDefault ?? false)
+}
+
+public let lumigramAppBadges: [LumigramAppBadge] = (loadArtworkFile()?.badges.map {
+    LumigramAppBadge(title: $0.title, assetName: $0.asset)
+}) ?? [LumigramAppBadge(title: "Default", assetName: "Components/AppBadge")]

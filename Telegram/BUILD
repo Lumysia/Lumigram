@@ -324,7 +324,7 @@ filegroup(
 )
 
 # Every Telegram-iOS/LG*.alticon folder becomes an alternate icon; the picker's
-# list is Swiftgram/SGSimpleSettings/Sources/LumigramArtwork.swift.
+# list is Telegram/Telegram-iOS/Resources/LumigramArtwork.json.
 alternate_icon_folders = [
     path[len("Telegram-iOS/"):-len(".alticon")]
     for path in glob(["Telegram-iOS/LG*.alticon"], exclude_directories = 0)
