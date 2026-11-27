@@ -10,6 +10,7 @@ swift_library(
         "-warnings-as-errors",
     ],
     deps = [
+        "//Lumigram/LumigramCore:LumigramCore",
         "//submodules/Display",
         "//submodules/TelegramCore",
         "//submodules/SSignalKit/SwiftSignalKit",

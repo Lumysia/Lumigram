@@ -59,6 +59,7 @@ load(
     "telegram_enable_icloud",
     "telegram_enable_siri",
     "telegram_app_name",
+    "telegram_associated_domains",
 )
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
@@ -518,7 +519,14 @@ icloud_fragment = "" if not telegram_enable_icloud else """
     telegram_icloud_environment="Production" if telegram_aps_environment == "production" else "Development"
 )
 
-associated_domains_fragment = "" if telegram_bundle_id not in official_bundle_ids else """
+# MARK: Lumigram: other bundle IDs get the associated domains from the build configuration.
+configured_associated_domains_fragment = "" if not telegram_associated_domains else """
+<key>com.apple.developer.associated-domains</key>
+<array>
+{}
+</array>
+""".format("\n".join(["    <string>{}</string>".format(domain) for domain in telegram_associated_domains]))
+associated_domains_fragment = configured_associated_domains_fragment if telegram_bundle_id not in official_bundle_ids else """
 <key>com.apple.developer.associated-domains</key>
 <array>
     <string>applinks:telegram.me</string>
@@ -625,6 +633,18 @@ plist_fragment(
         <string>arm64</string>
     </array>
     """
+)
+
+# MARK: Lumigram: passkeys use the first webcredentials domain as relying party.
+lumigram_passkey_domains = [domain[len("webcredentials:"):] for domain in telegram_associated_domains if domain.startswith("webcredentials:")]
+
+plist_fragment(
+    name = "LumigramInfoPlist",
+    extension = "plist",
+    template = "" if not lumigram_passkey_domains else """
+    <key>LGPasskeyRelyingParty</key>
+    <string>{}</string>
+    """.format(lumigram_passkey_domains[0]),
 )
 
 plist_fragment(
@@ -1920,6 +1940,7 @@ ios_application(
         ":VersionInfoPlist",
         ":RequiredDeviceCapabilitiesPlist",
         ":UrlTypesInfoPlist",
+        ":LumigramInfoPlist",
     ],
     app_icons = [ ":{}_icon".format(name) for name in composer_icon_folders ],
     alternate_icons = [
