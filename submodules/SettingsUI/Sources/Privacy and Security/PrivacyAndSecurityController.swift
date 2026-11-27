@@ -1580,6 +1580,7 @@ public func privacyAndSecurityController(
             displayPasskeys = true
         }
     }
+    if lumigramPasskeyRelyingParty == nil { displayPasskeys = false } // MARK: Swiftgram
     
     let webBrowserData = combineLatest(
         context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.contactSynchronizationSettings, ApplicationSpecificSharedDataKeys.webBrowserSettings]),

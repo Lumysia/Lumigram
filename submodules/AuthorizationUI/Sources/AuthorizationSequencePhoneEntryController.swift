@@ -1,3 +1,4 @@
+import SGSimpleSettings
 import Foundation
 import UIKit
 import Display
@@ -204,6 +205,7 @@ public final class AuthorizationSequencePhoneEntryController: ViewController, MF
     }
     
     private func loadAndPresentPasskey(force: Bool) {
+        guard let passkeyRelyingParty = lumigramPasskeyRelyingParty else { return } // MARK: Swiftgram
         if #available(iOS 16.0, *) {
             Task { @MainActor [weak self] in
                 guard let self, let account = self.account else {
@@ -241,7 +243,7 @@ public final class AuthorizationSequencePhoneEntryController: ViewController, MF
                     return
                 }
                 
-                let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: "swiftgram.app")
+                let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: passkeyRelyingParty)
                 let platformKeyRequest = platformProvider.createCredentialAssertionRequest(challenge: challengeData)
                 let authController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
                 authController.delegate = self

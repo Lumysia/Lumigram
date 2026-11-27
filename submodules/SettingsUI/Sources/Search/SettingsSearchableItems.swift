@@ -1,3 +1,4 @@
+import SGSimpleSettings
 import Foundation
 import UIKit
 import Display
@@ -2921,39 +2922,41 @@ private func privacySearchableItems(context: AccountContext, privacySettings: Ac
         )
     )
     
-    items.append(
-        SettingsSearchableItem(
-            id: "privacy/passkey",
-            title: strings.PrivacySettings_Passkey,
-            alternate: [],
-            icon: icon,
-            breadcrumbs: [strings.Settings_PrivacySettings],
-            present: { context, _, present in
-                Task { @MainActor in
-                    let initialPasskeysData = await (context.engine.auth.passkeysData() |> take(1)).get()
-                    let passkeysScreen = PasskeysScreen(context: context, displaySkip: false, initialPasskeysData: initialPasskeysData, passkeysDataUpdated: { _ in
-                    }, completion: {}, cancel: {})
-                    present(.push, passkeysScreen)
+    if lumigramPasskeyRelyingParty != nil { // MARK: Swiftgram
+        items.append(
+            SettingsSearchableItem(
+                id: "privacy/passkey",
+                title: strings.PrivacySettings_Passkey,
+                alternate: [],
+                icon: icon,
+                breadcrumbs: [strings.Settings_PrivacySettings],
+                present: { context, _, present in
+                    Task { @MainActor in
+                        let initialPasskeysData = await (context.engine.auth.passkeysData() |> take(1)).get()
+                        let passkeysScreen = PasskeysScreen(context: context, displaySkip: false, initialPasskeysData: initialPasskeysData, passkeysDataUpdated: { _ in
+                        }, completion: {}, cancel: {})
+                        present(.push, passkeysScreen)
+                    }
                 }
-            }
+            )
         )
-    )
-    items.append(
-        SettingsSearchableItem(
-            id: "privacy/passkey/create",
-            icon: icon,
-            breadcrumbs: [strings.Settings_PrivacySettings, strings.PrivacySettings_Passkey],
-            isVisible: false,
-            present: { context, _, present in
-                Task { @MainActor in
-                    let initialPasskeysData = await (context.engine.auth.passkeysData() |> take(1)).get()
-                    let passkeysScreen = PasskeysScreen(context: context, displaySkip: false, initialPasskeysData: initialPasskeysData, forceCreate: true, passkeysDataUpdated: { _ in
-                    }, completion: {}, cancel: {})
-                    present(.push, passkeysScreen)
+        items.append(
+            SettingsSearchableItem(
+                id: "privacy/passkey/create",
+                icon: icon,
+                breadcrumbs: [strings.Settings_PrivacySettings, strings.PrivacySettings_Passkey],
+                isVisible: false,
+                present: { context, _, present in
+                    Task { @MainActor in
+                        let initialPasskeysData = await (context.engine.auth.passkeysData() |> take(1)).get()
+                        let passkeysScreen = PasskeysScreen(context: context, displaySkip: false, initialPasskeysData: initialPasskeysData, forceCreate: true, passkeysDataUpdated: { _ in
+                        }, completion: {}, cancel: {})
+                        present(.push, passkeysScreen)
+                    }
                 }
-            }
+            )
         )
-    )
+    }
     
     items.append(
         SettingsSearchableItem(
