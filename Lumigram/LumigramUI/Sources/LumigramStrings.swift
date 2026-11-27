@@ -24,6 +24,7 @@ public struct LumigramStrings {
     public var hideReactions: String { self.text("Hide Reactions", zh: "隐藏回应") }
     public var nextChannelSwipe: String { self.text("Swipe Up to Next Channel", zh: "上滑进入下一个频道") }
     public var hideChannelBar: String { self.text("Hide Bottom Bar in Channels", zh: "隐藏频道底栏") }
+    public var roundVideoRearCamera: String { self.text("Video Messages Start with Rear Camera", zh: "视频消息默认用后置摄像头") }
     public var aiButton: String { self.text("AI Button in Message Field", zh: "输入框中的 AI 按钮") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
