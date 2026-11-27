@@ -41,6 +41,7 @@ import ChatNewThreadInfoItem
 import PhoneNumberFormat
 import ChatHistoryListViewBackend
 import Postbox
+import LumigramCore
 
 struct ChatTopVisibleMessageRange: Equatable {
     var lowerBound: MessageIndex
@@ -2219,7 +2220,7 @@ public final class ChatHistoryListNodeImpl: ASDisplayNode, ChatHistoryNode, Chat
                 )
                 
                 var translateToLanguage: (fromLang: String, toLang: String)?
-                if let translationState, (isPremium || autoTranslate)  && translationState.isEnabled {
+                if let translationState, (isPremium || autoTranslate || lumigramTranslatesOnDevice)  && translationState.isEnabled { // MARK: Lumigram
                     var languageCode = translationState.toLang ?? chatPresentationData.strings.baseLanguageCode
                     let rawSuffix = "-raw"
                     if languageCode.hasSuffix(rawSuffix) {
