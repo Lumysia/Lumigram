@@ -15,7 +15,15 @@ It keeps Swiftgram's features that work on the device and removes the parts that
 - No announcements or translation strings downloaded from GitHub. The app uses the strings it ships with.
 - No in-app purchases, receipt uploads or subscription status checks.
 
-Each of these is a separate commit on top of Swiftgram, so new Swiftgram releases merge in with few conflicts.
+Each of these is a separate commit on top of Swiftgram, so they carry over to new Swiftgram releases with few conflicts.
+
+## Branches
+
+- `main` holds the Lumigram commits (the changes above, plus these docs and CI) on the Swiftgram release they were
+  last rebased onto. Changes go here.
+- `lumigram/X.Y` is Swiftgram's `release/X.Y` with the commits of `main` replayed on top. These branches are generated
+  by CI and force-pushed; don't commit to them.
+- `vX.Y-N` tags mark builds: Swiftgram's version X.Y and build number N.
 
 ## Building
 
@@ -68,7 +76,22 @@ python3 build-system/Make/Make.py \
 ```
 
 `.github/workflows/lumigram-build.yml` does the same on GitHub's `xcode-27` runner and checks the built app for the
-removed Swiftgram hosts. `lumigram-sync.yml` merges each new Swiftgram release.
+removed Swiftgram hosts and for leftover "Swiftgram" names.
+
+`.github/workflows/lumigram-sync.yml` runs every six hours and on each push to `main`. It replays `main` onto the
+newest Swiftgram release branch with `.github/scripts/replay-series.sh`. If that gives a new commit, it pushes it to
+`lumigram/X.Y`, builds it and tags the build. The replay keeps each commit's author, committer and dates, so the same
+inputs always give the same commit and an unchanged result means there's nothing to build. A replay that conflicts
+outside `.github/fork-owned-files` opens an issue labelled `sync-conflict`. To fix it, rebase `main` onto the new
+release and force-push `main`.
+
+To replay locally:
+
+```
+git remote add swiftgram https://github.com/Swiftgram/Telegram-iOS.git
+git fetch swiftgram 'refs/heads/release/*:refs/remotes/swiftgram/release/*'
+.github/scripts/replay-series.sh swiftgram/release/X.Y main
+```
 
 ### Troubleshooting
 

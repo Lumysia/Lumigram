@@ -2,14 +2,16 @@ name: Lumigram build
 
 # No pull_request triggers: workflows here use the signing secrets and the
 # Bazel cache, so only people with write access can start them.
+#
+# Releases come from lumigram-sync.yml, which calls this with a lumigram/*
+# commit and tags the result. Run it by hand to test a branch or commit.
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
-      - LICENSE
   workflow_dispatch:
     inputs:
+      ref:
+        description: Branch, tag or commit to build (empty for the selected branch)
+        type: string
+        default: ""
       upload:
         description: Upload to TestFlight
         type: boolean
@@ -22,7 +24,17 @@ on:
     inputs:
       ref:
         type: string
-        default: main
+        required: true
+      upload:
+        type: boolean
+        default: true
+    outputs:
+      version:
+        description: App version from versions.json (Swiftgram's)
+        value: ${{ jobs.build.outputs.version }}
+      build_number:
+        description: CFBundleVersion of the uploaded build
+        value: ${{ jobs.build.outputs.build_number }}
     secrets:
       TELEGRAM_API_ID: { required: true }
       TELEGRAM_API_HASH: { required: true }
@@ -45,15 +57,26 @@ jobs:
   build:
     runs-on: xcode-27
     timeout-minutes: 300
+    outputs:
+      version: ${{ steps.rev.outputs.version }}
+      build_number: ${{ steps.build.outputs.build_number }}
     env:
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
-      UPLOAD: ${{ github.event_name != 'workflow_dispatch' || inputs.upload }}
+      UPLOAD: ${{ inputs.upload }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref || github.sha }}
           submodules: recursive
+
+      - name: Describe the commit
+        id: rev
+        run: |
+          set -euo pipefail
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version=$(python3 -c 'import json; print(json.load(open("versions.json"))["app"])')" >> "$GITHUB_OUTPUT"
+          echo "Building $(git rev-parse --short HEAD), version $(python3 -c 'import json; print(json.load(open("versions.json"))["app"])')"
 
       - name: Select the pinned Xcode
         id: xcode
@@ -160,7 +183,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/bazel-cache
-          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.sha }}
+          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ steps.rev.outputs.sha }}
           restore-keys: |
             bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-
             bazel-${{ steps.xcode.outputs.build }}-
@@ -171,6 +194,7 @@ jobs:
           set -euo pipefail
           build_number=$(( ($(date -u +%s) - 1767225600) / 60 ))
           echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          echo "build_number=$build_number" >> "$GITHUB_OUTPUT"
           python3 -u build-system/Make/Make.py \
             --cacheDir "$HOME/bazel-cache" \
             build ${{ inputs.keep_going && '--continueOnError' || '' }} \
@@ -185,7 +209,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/bazel-cache
-          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.sha }}-${{ github.run_attempt }}
+          key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ steps.rev.outputs.sha }}-${{ github.run_attempt }}
 
       - name: Check that removed hosts are gone
         run: .github/scripts/check-removed-hosts.sh build/artifacts/Swiftgram.ipa
