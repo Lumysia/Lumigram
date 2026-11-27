@@ -22,6 +22,7 @@ public struct LumigramStrings {
     public var sendWithReturn: String { self.text("Send with Return Key", zh: "回车键发送") }
     public var deletionEffect: String { self.text("Deletion Animation", zh: "删除动画") }
     public var hideReactions: String { self.text("Hide Reactions", zh: "隐藏回应") }
+    public var nextChannelSwipe: String { self.text("Swipe Up to Next Channel", zh: "上滑进入下一个频道") }
     public var aiButton: String { self.text("AI Button in Message Field", zh: "输入框中的 AI 按钮") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }

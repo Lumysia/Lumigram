@@ -5787,6 +5787,7 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     }
 
     var shouldAllowOverscrollActions: Bool {
+        guard LumigramSettings.shared[.nextChannelSwipe] else { return false } // MARK: Lumigram
         if let inputHeight = self.validLayout?.0.inputHeight, inputHeight > 0.0 {
             return false
         }
