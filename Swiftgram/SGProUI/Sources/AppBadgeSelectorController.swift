@@ -8,30 +8,16 @@ import TelegramPresentationData
 import AccountContext
 
 
-struct AppBadge: Identifiable, Hashable {
-    let id: UUID = .init()
-    let displayName: String
-    let assetName: String
+public struct AppBadge: Identifiable, Hashable {
+    public let id: UUID = .init()
+    public let displayName: String
+    public let assetName: String
 }
 
-func getAvailableAppBadges() -> [AppBadge] {
-    var appBadges: [AppBadge] = [
+public func getAvailableAppBadges() -> [AppBadge] {
+    return [
         .init(displayName: "Default", assetName: "Components/AppBadge"),
-        .init(displayName: "Sky", assetName: "SkyAppBadge"),
-        .init(displayName: "Night", assetName: "NightAppBadge"),
-        .init(displayName: "Titanium", assetName: "TitaniumAppBadge"),
-        .init(displayName: "Pro", assetName: "ProAppBadge"),
-        .init(displayName: "Day", assetName: "DayAppBadge"),
     ]
-
-    if SGSimpleSettings.shared.duckyAppIconAvailable {
-        appBadges.append(.init(displayName: "Ducky", assetName: "DuckyAppBadge"))
-    }
-    appBadges += [
-        .init(displayName: "Sparkling", assetName: "SparklingAppBadge"),
-    ]
-
-    return appBadges
 }
     
 struct AppBadgeSettingsView: View {
@@ -70,11 +56,9 @@ struct AppBadgeSettingsView: View {
     private func onSelectBadge(_ badge: AppBadge) {
         self.selectedBadge = badge
         let image = UIImage(bundleImageName: selectedBadge.assetName) ?? UIImage(bundleImageName: "Components/AppBadge")
-        if self.context.sharedContext.immediateSGStatus.status > 1 {
-            DispatchQueue.main.async {
-                SGSimpleSettings.shared.customAppBadge = selectedBadge.assetName
-                self.context.sharedContext.mainWindow?.badgeView.image = image
-            }
+        DispatchQueue.main.async {
+            SGSimpleSettings.shared.customAppBadge = selectedBadge.assetName
+            self.context.sharedContext.mainWindow?.badgeView.image = image
         }
     }
     

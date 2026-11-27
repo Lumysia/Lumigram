@@ -20,6 +20,8 @@ swift_library(
         "//Swiftgram/SGLogging:SGLogging",
         "//Swiftgram/SGSimpleSettings:SGSimpleSettings",
         "//Swiftgram/SGStrings:SGStrings",
+        "//Swiftgram/SGProUI:SGProUI",
+        "//submodules/SettingsUI:SettingsUI",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/Display:Display",
         "//submodules/TelegramCore:TelegramCore",

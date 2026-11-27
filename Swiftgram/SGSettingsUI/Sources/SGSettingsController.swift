@@ -21,12 +21,17 @@ import AppBundle
 import WebKit
 import PeerNameColorScreen
 import UndoUI
+import SGProUI
+import SettingsUI
 
 
 private enum SGControllerSection: Int32, SGItemListSection {
     case search
     case trending
     case content
+    case pro
+    case proNotifications
+    case appearance
     case tabs
     case folders
     case chatList
@@ -107,6 +112,7 @@ private enum SGBoolSetting: String {
     case videoControlsInFooter
     case combinedMediaViewer
     case hideAccountInNotifications
+    case inputToolbar
 }
 
 private enum SGOneFromManySetting: String {
@@ -117,6 +123,8 @@ private enum SGOneFromManySetting: String {
 //    case allChatsFolderPositionOverride
     case translationBackend
     case transcriptionBackend
+    case pinnedMessageNotifications
+    case mentionsAndRepliesNotifications
 }
 
 private enum SGSliderSetting: String {
@@ -128,6 +136,10 @@ private enum SGSliderSetting: String {
 private enum SGDisclosureLink: String {
     case contentSettings
     case languageSettings
+    case sessionBackupManager
+    case messageFilter
+    case appIcons
+    case appBadges
 }
 
 private struct PeerNameColorScreenState: Equatable {
@@ -141,7 +153,7 @@ private struct SGSettingsControllerState: Equatable {
 
 private typealias SGControllerEntry = SGItemListUIEntry<SGControllerSection, SGBoolSetting, SGSliderSetting, SGOneFromManySetting, SGDisclosureLink, AnyHashable>
 
-private func SGControllerEntries(presentationData: PresentationData, callListSettings: CallListSettings, experimentalUISettings: ExperimentalUISettings, appConfiguration: AppConfiguration, nameColors: PeerNameColors, state: SGSettingsControllerState) -> [SGControllerEntry] {
+private func SGControllerEntries(presentationData: PresentationData, callListSettings: CallListSettings, experimentalUISettings: ExperimentalUISettings, appConfiguration: AppConfiguration, nameColors: PeerNameColors, isPro: Bool, hasAlternateIcons: Bool, hasAppBadges: Bool, state: SGSettingsControllerState) -> [SGControllerEntry] {
     
     let lang = presentationData.strings.baseLanguageCode
     let strings = presentationData.strings
@@ -169,6 +181,29 @@ private func SGControllerEntries(presentationData: PresentationData, callListSet
         id.increment(1)
     }
     
+    if isPro {
+        entries.append(.disclosure(id: id.count, section: .pro, link: .sessionBackupManager, text: i18n("SessionBackup.Title", lang)))
+        entries.append(.disclosure(id: id.count, section: .pro, link: .messageFilter, text: i18n("MessageFilter.Title", lang)))
+        entries.append(.toggle(id: id.count, section: .pro, settingName: .inputToolbar, value: SGSimpleSettings.shared.inputToolbar, text: i18n("InputToolbar.Title", lang), enabled: true))
+        entries.append(.header(id: id.count, section: .proNotifications, text: strings.Notifications_Title.uppercased(), badge: nil))
+        entries.append(.oneFromManySelector(id: id.count, section: .proNotifications, settingName: .pinnedMessageNotifications, text: i18n("Notifications.PinnedMessages.Title", lang), value: i18n("Notifications.PinnedMessages.value.\(SGSimpleSettings.shared.pinnedMessageNotifications)", lang), enabled: true))
+        entries.append(.oneFromManySelector(id: id.count, section: .proNotifications, settingName: .mentionsAndRepliesNotifications, text: i18n("Notifications.MentionsAndReplies.Title", lang), value: i18n("Notifications.MentionsAndReplies.value.\(SGSimpleSettings.shared.mentionsAndRepliesNotifications)", lang), enabled: true))
+    } else {
+        id.increment(6)
+    }
+
+    if hasAlternateIcons {
+        entries.append(.disclosure(id: id.count, section: .appearance, link: .appIcons, text: strings.Appearance_AppIcon))
+    } else {
+        id.increment(1)
+    }
+    if hasAppBadges {
+        entries.append(.disclosure(id: id.count, section: .appearance, link: .appBadges, text: i18n("AppBadge.Title", lang)))
+        entries.append(.notice(id: id.count, section: .appearance, text: i18n("AppBadge.Notice", lang)))
+    } else {
+        id.increment(2)
+    }
+
     entries.append(.header(id: id.count, section: .tabs, text: i18n("Settings.Tabs.Header", lang), badge: nil))
     entries.append(.toggle(id: id.count, section: .tabs, settingName: .hideTabBar, value: SGSimpleSettings.shared.hideTabBar, text: i18n("Settings.Tabs.HideTabBar", lang), enabled: true))
     entries.append(.toggle(id: id.count, section: .tabs, settingName: .showContactsTab, value: callListSettings.showContactsTab, text: i18n("Settings.Tabs.ShowContacts", lang), enabled: !SGSimpleSettings.shared.hideTabBar))
@@ -527,6 +562,8 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
             SGSimpleSettings.shared.combinedMediaViewer = value
         case .videoControlsInFooter:
             SGSimpleSettings.shared.videoControlsInFooter = value
+        case .inputToolbar:
+            SGSimpleSettings.shared.inputToolbar = value
         case .hideAccountInNotifications:
             SGSimpleSettings.shared.hideAccountInNotifications = value
             SGSimpleSettings.shared.synchronizeShared()
@@ -674,6 +711,22 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
                         setAction(value.rawValue)
                     }))
                 }
+            case .pinnedMessageNotifications:
+                for value in SGSimpleSettings.PinnedMessageNotificationsSettings.allCases {
+                    options.append(SGOneFromManyOption(title: i18n("Notifications.PinnedMessages.value.\(value.rawValue)", presentationData.strings.baseLanguageCode), isSelected: SGSimpleSettings.shared.pinnedMessageNotifications == value.rawValue, action: {
+                        SGSimpleSettings.shared.pinnedMessageNotifications = value.rawValue
+                        SGSimpleSettings.shared.synchronizeShared()
+                        simplePromise.set(true)
+                    }))
+                }
+            case .mentionsAndRepliesNotifications:
+                for value in SGSimpleSettings.MentionsAndRepliesNotificationsSettings.allCases {
+                    options.append(SGOneFromManyOption(title: i18n("Notifications.MentionsAndReplies.value.\(value.rawValue)", presentationData.strings.baseLanguageCode), isSelected: SGSimpleSettings.shared.mentionsAndRepliesNotifications == value.rawValue, action: {
+                        SGSimpleSettings.shared.mentionsAndRepliesNotifications = value.rawValue
+                        SGSimpleSettings.shared.synchronizeShared()
+                        simplePromise.set(true)
+                    }))
+                }
         }
         
         presentOneFromManyImpl?(setting, options)
@@ -686,6 +739,14 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
                 pushControllerImpl?(context.sharedContext.makeLocalizationListController(context: context))
             case .contentSettings:
                 break
+            case .sessionBackupManager:
+                pushControllerImpl?(sgSessionBackupManagerController(context: context, presentationData: context.sharedContext.currentPresentationData.with { $0 }))
+            case .messageFilter:
+                pushControllerImpl?(sgMessageFilterController(context: context, presentationData: context.sharedContext.currentPresentationData.with { $0 }))
+            case .appIcons:
+                pushControllerImpl?(themeSettingsController(context: context, focusOnItemTag: .icon))
+            case .appBadges:
+                pushControllerImpl?(sgAppBadgeSettingsController(context: context, presentationData: context.sharedContext.currentPresentationData.with { $0 }))
         }
     }, searchInput: { searchQuery in
         updateState { state in
@@ -712,9 +773,9 @@ public func sgSettingsController(context: AccountContext/*, focusOnItemTag: Int?
         let callListSettings: CallListSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.callListSettings]?.get(CallListSettings.self) ?? CallListSettings.defaultSettings
         let experimentalUISettings: ExperimentalUISettings = sharedData.entries[ApplicationSpecificSharedDataKeys.experimentalUISettings]?.get(ExperimentalUISettings.self) ?? ExperimentalUISettings.defaultSettings
         
-        let entries = SGControllerEntries(presentationData: presentationData, callListSettings: callListSettings, experimentalUISettings: experimentalUISettings, appConfiguration: appConfiguration, nameColors: PeerNameColors.with(availableReplyColors: availableReplyColors, availableProfileColors: availableProfileColors), state: state)
+        let entries = SGControllerEntries(presentationData: presentationData, callListSettings: callListSettings, experimentalUISettings: experimentalUISettings, appConfiguration: appConfiguration, nameColors: PeerNameColors.with(availableReplyColors: availableReplyColors, availableProfileColors: availableProfileColors), isPro: context.sharedContext.immediateSGStatus.status > 1, hasAlternateIcons: !context.sharedContext.applicationBindings.getAvailableAlternateIcons().isEmpty, hasAppBadges: getAvailableAppBadges().count > 1, state: state)
         
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Swiftgram"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(sgAppName), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         
         // TODO(swiftgram): focusOnItemTag support
         /* var index = 0

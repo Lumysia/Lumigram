@@ -190,6 +190,9 @@ jobs:
       - name: Check that removed hosts are gone
         run: .github/scripts/check-removed-hosts.sh build/artifacts/Swiftgram.ipa
 
+      - name: Check that the app name replaced Swiftgram
+        run: python3 .github/scripts/check-app-name.py build/artifacts/Swiftgram.ipa
+
       - name: Upload to TestFlight
         if: env.UPLOAD == 'true'
         run: |
