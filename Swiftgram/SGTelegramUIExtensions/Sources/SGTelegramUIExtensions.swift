@@ -1,6 +1,7 @@
 import SGDebugUI
 import SGSettingsUI
 import SGStrings
+import SGSimpleSettings
 import UndoUI
 //
 import AccountContext
@@ -43,15 +44,7 @@ func sgHandleInternalUrlRoute(context: AccountContext, parsedUrl: URL, navigatio
         }
         return true
     case "pro", "premium", "buy":
-        if context.sharedContext.immediateSGStatus.status > 1 {
-            navigationController?.pushViewController(context.sharedContext.makeSGProController(context: context))
-        } else if let lastViewController = navigationController?.viewControllers.last as? ViewController {
-            if let payWallController = context.sharedContext.makeSGPayWallController(context: context) {
-                lastViewController.present(payWallController, in: .window(.root), with: ViewControllerPresentationArguments(presentationAnimation: .modalSheet))
-            } else {
-                lastViewController.present(context.sharedContext.makeSGUpdateIOSController(), animated: true)
-            }
-        }
+        navigationController?.pushViewController(sgSettingsController(context: context))
     case "restart":
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         let lang = presentationData.strings.baseLanguageCode
@@ -198,7 +191,7 @@ func sgInsertContextMenu(actions: inout [ContextMenuItem], sgActions: inout [Con
     })), at: 0)
     sgActions.insert(.separator, at: 1)
     let sgItems = sgActions
-    let swiftgramSubMenu: ContextMenuItem = .action(ContextMenuActionItem(text: "Swiftgram", icon: { theme in
+    let swiftgramSubMenu: ContextMenuItem = .action(ContextMenuActionItem(text: sgAppName, icon: { theme in
         return generateTintedImage(image: UIImage(bundleImageName: "SwiftgramContextMenu"), color: theme.actionSheet.primaryTextColor)
     }, action: { c, _ in
         popSGItems = { [weak c] in

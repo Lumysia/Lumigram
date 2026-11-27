@@ -11,6 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/TelegramCore:TelegramCore",
+        "//Swiftgram/SGSimpleSettings:SGSimpleSettings",
     ],
     visibility = [
         "//visibility:public",

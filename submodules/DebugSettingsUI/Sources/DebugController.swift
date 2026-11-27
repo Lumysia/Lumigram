@@ -1068,14 +1068,14 @@ private enum DebugControllerEntry: ItemListNodeEntry {
         switch self {
         // MARK: Swiftgram
         case .SGDebug:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Swiftgram Debug", label: "", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "\(sgAppName) Debug", label: "", sectionId: self.section, style: .blocks, action: {
                 guard let context = arguments.context else {
                     return
                 }
                 arguments.pushController(sgDebugController(context: context))
             })
         case .sendSGLogs:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Send Swiftgram Logs", label: "", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Send \(sgAppName) Logs", label: "", sectionId: self.section, style: .blocks, action: {
                 let presentationData = arguments.sharedContext.currentPresentationData.with { $0 }
                 let actionSheet = ActionSheetController(presentationData: presentationData)
                 var items: [ActionSheetButtonItem] = []
