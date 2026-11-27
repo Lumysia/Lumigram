@@ -44,6 +44,7 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
         Section(header: strings.chatListHeader, rows: [
             .toggle(strings.rememberFolder, .rememberFolder),
             .toggle(strings.compactTabs, .compactTabs),
+            .toggle(strings.tabTitles, .tabTitles),
             .toggle(strings.hideStories, .hideStories),
             .toggle(strings.confirmStoriesToggle, .confirmStories),
         ], footer: strings.appliesAfterRestart),

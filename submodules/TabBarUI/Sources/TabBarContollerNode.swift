@@ -8,6 +8,7 @@ import ComponentDisplayAdapters
 import TabBarComponent
 import TabBarLayout
 import GlassControls
+import LumigramCore
 
 final class TabBarControllerNode: ASDisplayNode {
     private struct Params: Equatable {
@@ -214,7 +215,7 @@ final class TabBarControllerNode: ASDisplayNode {
         panelsBottomInset = tabBarFloatingBottomInset(bottomInset: panelsBottomInset)
 
         let sidePlacement = self.sidePlacement(for: params.layout)
-        let isCompact = tabBarIsCompact(layout: params.layout, sidePlacement: sidePlacement)
+        let isCompact = tabBarIsCompact(layout: params.layout, sidePlacement: sidePlacement) || !LumigramSettings.shared[.tabTitles] // MARK: Lumigram
         // Where iOS 27 would switch its tab bar to the wide variant (a vertically compact phone, the bar at least
         // 568pt wide), the bar keeps its own horizontal layout; elsewhere a horizontal bar takes iOS 27's portrait one.
         let isWide = params.layout.size.width > params.layout.size.height && params.layout.size.width >= 568.0

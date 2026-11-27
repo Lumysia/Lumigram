@@ -8,6 +8,7 @@ public extension LumigramSettings.Keys {
     static let stickerSize = LumigramSettings.Key<String>("stickerSize", default: "default")
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let confirmStories = LumigramSettings.Key<Bool>("confirmStories", default: false)
+    static let tabTitles = LumigramSettings.Key<Bool>("tabTitles", default: true)
     static let compactTabs = LumigramSettings.Key<Bool>("compactTabs", default: false)
     static let rememberFolder = LumigramSettings.Key<Bool>("rememberFolder", default: true)
     static let showUserInfo = LumigramSettings.Key<Bool>("showUserInfo", default: true)

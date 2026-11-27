@@ -30,6 +30,7 @@ public struct LumigramStrings {
     public var stickerSizeSmall: String { self.text("Small", zh: "小") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var compactTabs: String { self.text("Compact Folder Tabs", zh: "紧凑分组标签") }
+    public var tabTitles: String { self.text("Tab Bar Titles", zh: "底栏标题") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
     public var rememberFolder: String { self.text("Open the Last Used Folder", zh: "打开上次使用的分组") }
     public var confirmStoriesToggle: String { self.text("Ask Before Opening Stories", zh: "打开动态前确认") }
