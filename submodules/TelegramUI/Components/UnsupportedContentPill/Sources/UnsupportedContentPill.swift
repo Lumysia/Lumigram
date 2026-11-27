@@ -1,3 +1,4 @@
+import SGSimpleSettings
 import Foundation
 import UIKit
 import Display
@@ -42,7 +43,7 @@ public struct UnsupportedContentPillStrings: Equatable {
     public init(strings: PresentationStrings) {
         self.init(
             title: strings.Conversation_UnsupportedMedia_Title,
-            text: strings.Conversation_UnsupportedMedia_Text.replacingOccurrences(of: "Telegram", with: "Swiftgram"), // MARK: Swiftgram
+            text: strings.Conversation_UnsupportedMedia_Text.replacingOccurrences(of: "Telegram", with: sgAppName), // MARK: Swiftgram
             action: strings.Conversation_UnsupportedMedia_Action
         )
     }

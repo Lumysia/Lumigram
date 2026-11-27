@@ -1,5 +1,6 @@
-"""Checks a built IPA for user-visible "Swiftgram": bundled strings and Info.plist
-names fail the check; text phrases inside the binaries are listed for review."""
+"""Checks a built IPA for user-visible "Swiftgram": bundled strings, Siri phrase
+examples, Info.plist names and usage descriptions fail the check; text phrases
+inside the binaries are listed for review."""
 import plistlib
 import re
 import sys
@@ -34,9 +35,12 @@ with zipfile.ZipFile(sys.argv[1]) as ipa:
                     failures.append(f"{name}: {value[:80]!r}")
         elif name.endswith("Info.plist"):
             info = plistlib.loads(ipa.read(name))
-            for key in visible_keys:
-                if word.search(str(info.get(key, "")).encode()):
-                    failures.append(f"{name}: {key} = {info[key]}")
+            for key, value in info.items():
+                if (key in visible_keys or key.endswith("UsageDescription")) and word.search(str(value).encode()):
+                    failures.append(f"{name}: {key} = {value}")
+        elif ".lproj/" in name and name.endswith(".plist"):
+            if word.search(ipa.read(name)):
+                failures.append(f"{name}: contains Swiftgram")
         elif "/Frameworks/" in name or name.count("/") == 2:
             data = ipa.read(name)
             if data[:4] in (b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
