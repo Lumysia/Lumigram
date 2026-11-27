@@ -130,6 +130,9 @@ jobs:
           build --@build_bazel_rules_swift//swift:copt=-no-warnings-as-errors
           RC
 
+      - name: Check the artwork list
+        run: python3 .github/scripts/check-artwork.py
+
       - name: Put the app name into the bundled strings
         run: python3 .github/scripts/apply-app-name.py build-input/configuration.json
 
