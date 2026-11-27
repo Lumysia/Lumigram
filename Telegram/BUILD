@@ -58,6 +58,7 @@ load(
     "telegram_team_id",
     "telegram_enable_icloud",
     "telegram_enable_siri",
+    "telegram_app_name",
 )
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
@@ -641,8 +642,8 @@ plist_fragment(
     template =
     """
     <key>CFBundleDisplayName</key>
-    <string>Telegram</string>
-    """
+    <string>{telegram_app_name}</string>
+    """.format(telegram_app_name = telegram_app_name)
 )
 
 plist_fragment(
@@ -1040,7 +1041,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.Share</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1076,6 +1077,7 @@ plist_fragment(
         <string>ShareRootController</string>
     </dict>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
@@ -1145,7 +1147,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.NotificationContent</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1166,6 +1168,7 @@ plist_fragment(
         <string>NotificationViewController</string>
     </dict>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
@@ -1253,7 +1256,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.Widget</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1266,6 +1269,7 @@ plist_fragment(
         <string>arm64</string>
     </array>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
@@ -1370,7 +1374,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.SiriIntents</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1398,6 +1402,7 @@ plist_fragment(
         <string>IntentHandler</string>
     </dict>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
@@ -1533,7 +1538,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.BroadcastUpload</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1546,6 +1551,7 @@ plist_fragment(
         <string>RPBroadcastProcessModeSampleBuffer</string>
     </dict>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
@@ -1627,7 +1633,7 @@ plist_fragment(
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}.NotificationService</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>XPC!</string>
     <key>NSExtension</key>
@@ -1645,6 +1651,7 @@ plist_fragment(
         </dict>
     </dict>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id
     )
 )
@@ -1696,11 +1703,11 @@ plist_fragment(
     <key>CFBundleDevelopmentRegion</key>
     <string>en</string>
     <key>CFBundleDisplayName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundleIdentifier</key>
     <string>{telegram_bundle_id}</string>
     <key>CFBundleName</key>
-    <string>Telegram</string>
+    <string>{telegram_app_name}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
@@ -1762,13 +1769,13 @@ plist_fragment(
     <key>NSFaceIDUsageDescription</key>
     <string>You can use Face ID to unlock the app.</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>When you send your location to your friends, Telegram needs access to show them a map. You also need this to send locations from an Apple Watch.</string>
+    <string>When you send your location to your friends, {telegram_app_name} needs access to show them a map. You also need this to send locations from an Apple Watch.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>When you send your location to your friends, Telegram needs access to show them a map.</string>
+    <string>When you send your location to your friends, {telegram_app_name} needs access to show them a map.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>We need this so that you can record and share voice messages and videos with sound.</string>
     <key>NSMotionUsageDescription</key>
-    <string>When you send your location to your friends, Telegram needs access to show them a map.</string>
+    <string>When you send your location to your friends, {telegram_app_name} needs access to show them a map.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
     <string>We need this so that you can share photos and videos from your photo library.</string>
     <key>NSPhotoLibraryUsageDescription</key>
@@ -1874,6 +1881,7 @@ plist_fragment(
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
     """.format(
+        telegram_app_name = telegram_app_name,
         telegram_bundle_id = telegram_bundle_id,
     )
 )
