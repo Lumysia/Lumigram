@@ -4,6 +4,7 @@ import SwiftSignalKit
 import TelegramCore
 import AccountContext
 import TelegramUIPreferences
+import LumigramCore
 
 public struct ChatTranslationState: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
@@ -299,6 +300,8 @@ public func translateMessageIds(context: AccountContext, messageIds: [EngineMess
         default:
             break
         }
+        // MARK: Lumigram: without Premium, chats are translated on the device.
+        enableLocalIfPossible = enableLocalIfPossible || (!context.isPremium && lumigramTranslatesOnDevice)
         return context.engine.messages.translateMessages(messageIds: messageIdsToTranslate, fromLang: fromLang, toLang: toLang, enableLocalIfPossible: enableLocalIfPossible)
         |> `catch` { _ -> Signal<Never, NoError> in
             return .complete()

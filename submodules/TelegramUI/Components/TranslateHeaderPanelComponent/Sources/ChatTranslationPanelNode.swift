@@ -21,6 +21,7 @@ import ComponentDisplayAdapters
 import LocalMediaResources
 import AppBundle
 import TranslationLanguagesContextMenuContent
+import LumigramCore
 
 final class ChatTranslationPanelNode: ASDisplayNode {
     private let context: AccountContext
@@ -213,7 +214,7 @@ final class ChatTranslationPanelNode: ASDisplayNode {
         }
         let isPremium = info.isPremium
         
-        var translationAvailable = isPremium
+        var translationAvailable = isPremium || lumigramTranslatesOnDevice // MARK: Lumigram
         if case let .channel(channel) = info.peer, channel.flags.contains(.autoTranslateEnabled) {
             translationAvailable = true
         }
@@ -232,7 +233,7 @@ final class ChatTranslationPanelNode: ASDisplayNode {
         
         let isPremium = info.isPremium
         
-        var translationAvailable = isPremium
+        var translationAvailable = isPremium || lumigramTranslatesOnDevice // MARK: Lumigram
         if case let .channel(channel) = info.peer, channel.flags.contains(.autoTranslateEnabled) {
             translationAvailable = true
         }
