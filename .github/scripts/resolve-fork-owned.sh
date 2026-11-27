@@ -1,6 +1,7 @@
 #!/bin/bash
 # During a conflicted merge, keeps this fork's side of the files listed in
-# .github/fork-owned-files (its version, or its deletion). Exits 1 while
+# .github/fork-owned-files (its version, or its deletion; an entry ending in
+# / covers a directory). Exits 1 while
 # other conflicts remain.
 set -euo pipefail
 
@@ -9,7 +10,10 @@ git rev-parse -q --verify MERGE_HEAD > /dev/null || exit 1
 mapfile -t owned < <(grep -v '^\s*#' .github/fork-owned-files | sed '/^\s*$/d')
 is_owned() {
   local path="$1" item
-  for item in "${owned[@]}"; do [ "$item" = "$path" ] && return 0; done
+  for item in "${owned[@]}"; do
+    [ "$item" = "$path" ] && return 0
+    [[ "$item" == */ && "$path" == "$item"* ]] && return 0
+  done
   return 1
 }
 

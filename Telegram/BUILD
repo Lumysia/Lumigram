@@ -322,29 +322,10 @@ filegroup(
     ], exclude = ["Telegram-iOS/DefaultAppIcon.xcassets/**/.*"]),
 )
 
-# MARK: Swiftgram alternative icons
-alternate_icon_folders = [
-    "SGDefault",
-    "SGBlack",
-    "SGLegacy",
-    "SGInverted",
-    "SGWhite",
-    "SGNight",
-    "SGSky",
-    "SGTitanium",
-    "SGNeon",
-    "SGNeonBlue",
-    "SGGlass",
-    "SGSparkling",
-    "SGBeta",
-    "SGPro",
-    "SGGold",
-    "SGDucky",
-    "SGDay"
-]
+alternate_icon_folders = []
 #
 
-composer_icon_folders = ["Swiftgram"] # MARK: Swiftgram
+composer_icon_folders = ["AppIcon"]
 
 [
     filegroup(

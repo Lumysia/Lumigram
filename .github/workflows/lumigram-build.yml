@@ -102,6 +102,9 @@ jobs:
           build --@build_bazel_rules_swift//swift:copt=-no-warnings-as-errors
           RC
 
+      - name: Put the app name into the bundled strings
+        run: python3 .github/scripts/apply-app-name.py build-input/configuration.json
+
       - name: Import the distribution certificate
         env:
           DIST_CERT_P12: ${{ secrets.DIST_CERT_P12 }}
