@@ -16,6 +16,7 @@ import WebUI
 import AvatarNode
 import PeerNameColorItem
 import BoostLevelIconComponent
+import LumigramUI
 
 private let enabledPublicBioEntities: EnabledEntityTypes = [.allUrl, .mention, .hashtag]
 private let enabledPrivateBioEntities: EnabledEntityTypes = [.internalUrl, .mention, .hashtag]
@@ -246,6 +247,10 @@ func infoItems(
                     interaction.openPremiumGift()
                 }, contextAction: birthdayContextAction, requestLayout: { _ in
                 }))
+            }
+            // MARK: Lumigram
+            for (index, row) in lumigramUserInfoRows(userId: user.id.id._internalGetInt64Value(), datacenterId: (user.photo.first?.resource as? CloudPeerPhotoSizeMediaResource)?.datacenterId, strings: presentationData.strings).enumerated() {
+                items[currentPeerInfoSection]!.append(PeerInfoScreenLabeledValueItem(id: 20000 + index, label: row.label, text: row.text, action: { _, _ in UIPasteboard.general.string = row.text }, requestLayout: { _ in }))
             }
             
             var hasAbout = false
