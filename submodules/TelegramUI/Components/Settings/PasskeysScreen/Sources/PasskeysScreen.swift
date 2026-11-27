@@ -1,3 +1,4 @@
+import SGSimpleSettings
 import Foundation
 import UIKit
 import Display
@@ -177,7 +178,10 @@ final class PasskeysScreenComponent: Component {
                         return
                     }
                     
-                    let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: "swiftgram.app")
+                    guard let relyingPartyIdentifier = lumigramPasskeyRelyingParty else { // MARK: Swiftgram
+                        return
+                    }
+                    let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: relyingPartyIdentifier)
                     let platformKeyRequest = platformProvider.createCredentialRegistrationRequest(challenge: challengeData, name: userName, userID: userId)
                     let authController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
                     authController.delegate = self
@@ -241,7 +245,7 @@ final class PasskeysScreenComponent: Component {
                             Logger.shared.log("Passkeys", "reportUnknownPublicKeyCredential error: \(e). Retrying with another domain")
                             // MARK: Swiftgram
                             do {
-                                try await updater.reportUnknownPublicKeyCredential(relyingPartyIdentifier: "swiftgram.app", credentialID: credentialId)
+                                try await updater.reportUnknownPublicKeyCredential(relyingPartyIdentifier: lumigramPasskeyRelyingParty ?? "telegram.org", credentialID: credentialId)
                             } catch let e {
                                 Logger.shared.log("Passkeys", "reportUnknownPublicKeyCredential error: \(e)")
                             }

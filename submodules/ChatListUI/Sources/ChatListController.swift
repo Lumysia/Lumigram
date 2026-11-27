@@ -2721,7 +2721,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                     return
                 }
                 
-                if values.contains(.setupPasskey) {
+                if values.contains(.setupPasskey), lumigramPasskeyRelyingParty != nil { // MARK: Swiftgram
                     if strongSelf.didSuggestLoginPasskeySetup {
                         return
                     }

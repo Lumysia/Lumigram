@@ -544,6 +544,17 @@ associated_domains_fragment = "" if telegram_bundle_id not in official_bundle_id
 """
 #
 
+# Passkeys need a webcredentials domain in the entitlements above; the app
+# reads this from Info.plist and hides passkeys when it is empty.
+webcredentials_domains = [
+    line.split("webcredentials:")[1].split("<")[0]
+    for line in associated_domains_fragment.split("\n")
+    if "webcredentials:" in line
+]
+passkey_relying_party = "" if not webcredentials_domains else (
+    "swiftgram.app" if "swiftgram.app" in webcredentials_domains else webcredentials_domains[0]
+)
+
 siri_fragment = "" if not telegram_enable_siri else """
 <key>com.apple.developer.siri</key>
 <true/>
@@ -1855,6 +1866,8 @@ plist_fragment(
     extension = "plist",
     template = 
     """
+    <key>LGPasskeyRelyingParty</key>
+    <string>{passkey_relying_party}</string>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
         <string>{telegram_bundle_id}.refresh</string>
@@ -2044,6 +2057,7 @@ plist_fragment(
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
     """.format(
+        passkey_relying_party = passkey_relying_party,
         telegram_bundle_id = telegram_bundle_id,
         app_name = telegram_app_name,
     )

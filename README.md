@@ -14,6 +14,8 @@ It keeps Swiftgram's features that work on the device and removes the parts that
   can be chosen in settings. Message text is never sent to Google.
 - No announcements or translation strings downloaded from GitHub. The app uses the strings it ships with.
 - No in-app purchases, receipt uploads or subscription status checks.
+- Passkey sign-in and setup are hidden unless the app's entitlements list a `webcredentials` domain. Swiftgram
+  sends passkeys to its own domain, which only works for Swiftgram's app.
 
 Each of these is a separate commit on top of Swiftgram, so they carry over to new Swiftgram releases with few conflicts.
 
