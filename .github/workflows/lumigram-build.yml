@@ -20,6 +20,10 @@ on:
         description: Keep compiling after the first failure
         type: boolean
         default: false
+      check_base:
+        description: Compile the libraries changed since this commit first (empty for the newest release tag)
+        type: string
+        default: ""
   workflow_call:
     inputs:
       ref:
@@ -48,6 +52,7 @@ on:
 
 permissions:
   contents: read
+  actions: write # to delete superseded Bazel caches
 
 concurrency:
   group: lumigram-build
@@ -188,12 +193,45 @@ jobs:
             bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-
             bazel-${{ steps.xcode.outputs.build }}-
 
+      - name: Compile the changed modules first
+        id: check
+        env:
+          CHECK_BASE: ${{ inputs.check_base }}
+        run: |
+          set -euo pipefail
+          touch "$RUNNER_TEMP/build-start"
+          build_number=$(( ($(date -u +%s) - 1767225600) / 60 ))
+          echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          # Libraries changed since the newest release tag go first, so a compile
+          # error fails here within minutes; the app build reuses their outputs.
+          if [ -n "${CHECK_BASE:-}" ]; then
+            git fetch --quiet --depth=1 origin "$CHECK_BASE"
+            base="$(git rev-parse FETCH_HEAD)"
+          else
+            tag="$(git ls-remote --tags origin 'v*' | sed 's|.*refs/tags/||;/\^{}$/d' | sort -t- -k2 -n | tail -1)"
+            if [ -z "$tag" ] || ! git fetch --quiet --depth=1 origin "refs/tags/$tag:refs/tags/$tag"; then
+              echo "No release tag to compare with; skipping."
+              exit 0
+            fi
+            base="$tag"
+          fi
+          echo "Libraries changed since $base:"
+          python3 .github/scripts/compile-check-targets.py "$base" | sed 's/^/  /'
+          [ -f lumigram-check/BUILD ] || exit 0
+          python3 -u build-system/Make/Make.py \
+            --cacheDir "$HOME/bazel-cache" \
+            build \
+            --configurationPath build-input/configuration.json \
+            --codesigningInformationPath build-input/codesigning \
+            --buildNumber="$build_number" \
+            --configuration=release_arm64 \
+            --target //lumigram-check:check
+
       - name: Build
         id: build
         run: |
           set -euo pipefail
-          build_number=$(( ($(date -u +%s) - 1767225600) / 60 ))
-          echo "BUILD_NUMBER=$build_number" >> "$GITHUB_ENV"
+          build_number="$BUILD_NUMBER"
           echo "build_number=$build_number" >> "$GITHUB_OUTPUT"
           python3 -u build-system/Make/Make.py \
             --cacheDir "$HOME/bazel-cache" \
@@ -204,12 +242,57 @@ jobs:
             --configuration=release_arm64 \
             --outputBuildArtifactsPath build/artifacts
 
+      - name: Drop cache entries this build did not use
+        if: steps.build.outcome == 'success'
+        run: |
+          # Bazel touches disk cache entries it reads, so after a complete build
+          # anything older than the build start is stale.
+          python3 - "$HOME/bazel-cache" "$RUNNER_TEMP/build-start" <<'PY'
+          import os, sys
+          root, marker = sys.argv[1], os.path.getmtime(sys.argv[2])
+          used = stale = 0
+          old = []
+          for directory, _, names in os.walk(root):
+              for name in names:
+                  path = os.path.join(directory, name)
+                  info = os.stat(path)
+                  if info.st_mtime >= marker:
+                      used += info.st_size
+                  else:
+                      stale += info.st_size
+                      old.append(path)
+          gb = lambda n: f"{n / 1e9:.2f} GB"
+          print(f"Used {gb(used)}, stale {gb(stale)}.")
+          if used > 1e9:
+              for path in old:
+                  os.remove(path)
+              print(f"Removed {len(old)} stale entries.")
+          else:
+              print("Kept everything.")
+          PY
+
       - name: Save the Bazel cache
-        if: always() && steps.build.outcome != 'skipped'
+        id: save
+        if: always() && steps.check.outcome != 'skipped'
         uses: actions/cache/save@v4
         with:
           path: ~/bazel-cache
           key: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ steps.rev.outputs.sha }}-${{ github.run_attempt }}
+
+      - name: Delete superseded Bazel caches
+        if: always() && steps.save.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEY: bazel-${{ steps.xcode.outputs.build }}-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ steps.rev.outputs.sha }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          caches="$(gh cache list -R "$GITHUB_REPOSITORY" --ref "$GITHUB_REF" --key bazel- --limit 100 --json id,key)"
+          if ! jq -e --arg key "$KEY" 'any(.[]; .key == $key)' <<< "$caches" > /dev/null; then
+            echo "The new cache is not listed yet; keeping the old ones."
+            exit 0
+          fi
+          jq -r --arg key "$KEY" '.[] | select(.key != $key) | .id' <<< "$caches" \
+            | while read -r id; do gh cache delete -R "$GITHUB_REPOSITORY" "$id"; done
 
       - name: Check that removed hosts are gone
         run: .github/scripts/check-removed-hosts.sh build/artifacts/Swiftgram.ipa
