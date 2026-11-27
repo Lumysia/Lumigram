@@ -11,6 +11,7 @@ swift_library(
     ],
     deps = [
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
+        "//submodules/Postbox:Postbox",
     ],
     visibility = [
         "//visibility:public",

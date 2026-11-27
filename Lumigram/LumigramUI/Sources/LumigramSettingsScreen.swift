@@ -13,6 +13,7 @@ private let sourceCodeUrl = "https://github.com/Lumysia/Lumigram"
 private struct Section {
     enum Row {
         case toggle(String, LumigramSettings.Key<Bool>)
+        case lines(placeholder: String, LumigramSettings.Key<[String]>)
         case link(String, url: String)
     }
 
@@ -31,6 +32,7 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
         ], footer: nil),
         Section(header: strings.chatListHeader, rows: [.toggle(strings.hideStories, .hideStories)], footer: strings.appliesAfterRestart),
         Section(header: strings.profilesHeader, rows: [.toggle(strings.showUserInfo, .showUserInfo)], footer: strings.showUserInfoFooter),
+        Section(header: strings.filterHeader, rows: [.lines(placeholder: strings.filterPlaceholder, .filterWords)], footer: strings.filterFooter),
         Section(header: strings.aboutHeader, rows: [.link(strings.sourceCode, url: sourceCodeUrl)], footer: strings.aboutFooter),
     ]
 }
@@ -39,6 +41,7 @@ private struct Entry: ItemListNodeEntry {
     enum Content: Equatable {
         case header(String)
         case toggle(String, LumigramSettings.Key<Bool>, Bool)
+        case lines(placeholder: String, LumigramSettings.Key<[String]>, String)
         case link(String, url: String)
         case footer(String)
     }
@@ -59,6 +62,10 @@ private struct Entry: ItemListNodeEntry {
         case let .toggle(title, key, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
                 LumigramSettings.shared[key] = value
+            })
+        case let .lines(placeholder, key, text):
+            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: placeholder, maxLength: nil, sectionId: self.section, style: .blocks, capitalization: false, autocorrection: false, textUpdated: { text in
+                LumigramSettings.shared[key] = text.components(separatedBy: "\n")
             })
         case let .link(title, url):
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: title, label: "", sectionId: self.section, style: .blocks, action: {
@@ -84,6 +91,8 @@ private func entries(_ sections: [Section]) -> [Entry] {
             switch row {
             case let .toggle(title, key):
                 append(.toggle(title, key, LumigramSettings.shared[key]))
+            case let .lines(placeholder, key):
+                append(.lines(placeholder: placeholder, key, LumigramSettings.shared[key].joined(separator: "\n")))
             case let .link(title, url):
                 append(.link(title, url: url))
             }

@@ -12,6 +12,7 @@ import TextFormat
 import Markdown
 import Display
 import TelegramStringFormatting
+import LumigramCore
 
 struct ChatHistoryEntriesForViewState {
     private var messageStableIdToLocalId: [UInt32: Int64] = [:]
@@ -169,6 +170,7 @@ func chatHistoryEntriesForView(
     }
     
     var count = 0
+    let lumigramFilter = LumigramMessageFilter() // MARK: Lumigram
     loop: for entry in view.entries {
         var message = entry.message.withAppliedEphemeralReplacementMessage()
         var isRead = entry.isRead
@@ -179,6 +181,9 @@ func chatHistoryEntriesForView(
         }
         
         if pendingRemovedMessages.contains(message.id) {
+            continue
+        }
+        if lumigramFilter.hides(message) { // MARK: Lumigram
             continue
         }
         
