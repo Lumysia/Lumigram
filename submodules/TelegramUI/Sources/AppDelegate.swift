@@ -54,6 +54,7 @@ import WalletSendScreen
 import PasscodeCore
 import LiquidGlassShapes
 import MTProtoRustEngine
+import LumigramUI
 
 #if DEBUG
 import AlertComponent
@@ -429,6 +430,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         let statusBarHost = ApplicationStatusBarHost(scene: window.windowScene)
         self.statusBarHost = statusBarHost
         self.mainWindow = Window1(hostView: hostView, statusBarHost: statusBarHost)
+        lumigramUpdateAppBadge(self.mainWindow.badgeView, iconName: application.alternateIconName) // MARK: Lumigram
         if let traitCollection = window.rootViewController?.traitCollection {
             if #available(iOS 13.0, *) {
                 switch traitCollection.userInterfaceStyle {
@@ -1010,6 +1012,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
             }
         }, requestSetAlternateIconName: { name, completion in
             application.setAlternateIconName(name, completionHandler: { error in
+                if error == nil { lumigramUpdateAppBadge(self.mainWindow.badgeView, iconName: name) } // MARK: Lumigram
                 if let error = error {
                    Logger.shared.log("App \(self.episodeId)", "failed to set alternate icon with error \(error.localizedDescription)")
                 }
