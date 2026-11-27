@@ -13,6 +13,7 @@ import RichTextEditorMediaView
 import RichTextEditorUIKit
 import InstantPageUI
 import BrowserUI
+import LumigramCore
 
 func chatInputFormulaRenderResult(context: RichTextFormulaRenderContext) -> RichTextFormulaRenderResult? {
     guard let attachment = instantPageMathAttachment(
@@ -373,6 +374,8 @@ func inputPanelForChatPresentationIntefaceState(_ chatPresentationInterfaceState
             case .broadcast:
                 if chatPresentationInterfaceState.interfaceState.editMessage != nil, channel.hasPermission(.editAllMessages) {
                     displayInputTextPanel = true
+                } else if isMember && !channel.hasPermission(.sendSomething) && LumigramSettings.shared[.hideChannelBar] { // MARK: Lumigram
+                    return (nil, nil)
                 } else if !channel.hasPermission(.sendSomething) || !isMember {
                     if let currentPanel = (currentPanel as? ChatChannelSubscriberInputPanelNode) ?? (currentSecondaryPanel as? ChatChannelSubscriberInputPanelNode) {
                         return (currentPanel, nil)
