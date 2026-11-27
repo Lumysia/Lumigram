@@ -1,0 +1,190 @@
+name: Lumigram sync
+
+# Every Telegram-iOS version gets a Lumigram branch: lumigram/X.Y is upstream
+# master at app version X.Y with the commits of main replayed on top. main is
+# Lumigram's own commits on the upstream commit it was last rebased onto;
+# lumigram/* branches are generated and force-pushed, never edited.
+#
+# When the replay gives a new commit, it is pushed, built, uploaded to TestFlight
+# with Telegram's version number and tagged v<version>-<build>. A replay that
+# needs a human opens (or updates) an issue labelled "sync-conflict"; fix it by
+# rebasing main onto upstream master.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - LICENSE
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only replay and report; push, build and tag nothing
+        type: boolean
+        default: false
+      rebuild:
+        description: Build even if this commit was already pushed or tagged
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write # the build deletes superseded Bazel caches
+
+concurrency:
+  group: lumigram-sync
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.replay.outputs.build }}
+      sha: ${{ steps.replay.outputs.sha }}
+      branch: ${{ steps.replay.outputs.branch }}
+      upstream: ${{ steps.replay.outputs.upstream }}
+      main: ${{ steps.replay.outputs.main }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Replay main onto upstream master
+        id: replay
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          REBUILD: ${{ inputs.rebuild || false }}
+          DEPLOY_KEY: ${{ secrets.SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # No background gc after the big fetch: it holds index.lock during the replay.
+          git config gc.auto 0
+          git config maintenance.auto false
+          git remote add upstream https://github.com/TelegramMessenger/Telegram-iOS.git
+          git fetch --quiet upstream 'refs/heads/master:refs/remotes/upstream/master'
+          git fetch --quiet --force --tags origin
+
+          upstream="upstream/master"
+          RELEASE="$(git show "$upstream:versions.json" | jq -r .app)"
+          branch="lumigram/$RELEASE"
+          main="$(git rev-parse HEAD)"
+          echo "Telegram-iOS $RELEASE ($(git rev-parse --short "$upstream"))"
+          {
+            echo "branch=$branch"
+            echo "upstream=$(git rev-parse "$upstream")"
+            echo "main=$main"
+          } >> "$GITHUB_OUTPUT"
+
+          status=0
+          out="$(.github/scripts/replay-series.sh "$upstream" "$main")" || status=$?
+          if [ "$status" -ne 0 ]; then
+            printf '%s\n' "$out"
+            [ "$status" -ne 1 ] && { echo "::error::The replay failed (exit $status) without a conflict."; exit "$status"; }
+            [ "$DRY_RUN" = true ] && { echo "::error::Dry run: the replay conflicts."; exit 1; }
+            body="$(printf 'Replaying main onto upstream master %s (Telegram %s) needs a human.\n\n```\n%s\n```\n\nRebase main onto upstream master, resolve, and force-push main; the next sync builds `%s`.\n' \
+              "$(git rev-parse --short "$upstream")" "$RELEASE" "$out" "$branch")"
+            gh label create sync-conflict --color B60205 --force > /dev/null
+            existing="$(gh issue list --label sync-conflict --state open --json number --jq '.[0].number // empty')"
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "$body"
+            else
+              gh issue create --title "Telegram $RELEASE needs a manual rebase" --label sync-conflict --body "$body"
+            fi
+            exit 1
+          fi
+          printf '%s\n' "$out"
+          sha="$(git rev-parse HEAD)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+          # The newest tag built from this branch, if any.
+          last=""
+          for tag in $(git for-each-ref --sort=-taggerdate --format='%(refname:short)' 'refs/tags/v*'); do
+            if git tag -l --format='%(contents)' "$tag" | grep -qxF "branch: $branch"; then
+              last="$tag"; break
+            fi
+          done
+          remote="$(git rev-parse -q --verify "refs/remotes/origin/$branch" || true)"
+
+          build=true
+          if [ "$REBUILD" != true ]; then
+            if [ -n "$(git tag --points-at "$sha" 'v*')" ]; then
+              echo "Already built: $(git tag --points-at "$sha" 'v*' | tr '\n' ' ')"; build=false
+            elif [ -n "$last" ] && git diff --quiet "$last" "$sha" -- . ':(exclude)*.md' ':(exclude)LICENSE' ':(exclude).github'; then
+              echo "Only docs or CI changed since $last."; build=false
+            elif [ "$remote" = "$sha" ]; then
+              echo "$branch is already at $sha and was not tagged: the last build failed. Use rebuild to retry."; build=false
+            fi
+          fi
+          echo "Last tag on $branch: ${last:-none}; remote: ${remote:-none}; build: $build"
+
+          if [ "$DRY_RUN" = true ]; then
+            echo "Dry run: would push $sha to $branch and build=$build."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+          if [ "$remote" != "$sha" ]; then
+            # A deploy key, because GITHUB_TOKEN may not push commits that touch workflows.
+            key="$RUNNER_TEMP/sync-key"
+            printf '%s\n' "$DEPLOY_KEY" > "$key"
+            chmod 600 "$key"
+            GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+              git push --quiet --force "git@github.com:${GITHUB_REPOSITORY}.git" "$sha:refs/heads/$branch"
+            rm -f "$key"
+            echo "Pushed $branch at $sha"
+          fi
+          gh issue list --label sync-conflict --state open --json number --jq '.[].number' \
+            | xargs -r -I{} gh issue close {} --comment "Replayed cleanly onto upstream master: $branch is at $sha."
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/lumigram-build.yml
+    with:
+      ref: ${{ needs.prepare.outputs.sha }}
+      upload: true
+    secrets: inherit
+
+  tag:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Tag the build
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+          BRANCH: ${{ needs.prepare.outputs.branch }}
+          UPSTREAM: ${{ needs.prepare.outputs.upstream }}
+          SHA: ${{ needs.prepare.outputs.sha }}
+          MAIN: ${{ needs.prepare.outputs.main }}
+          DEPLOY_KEY: ${{ secrets.SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tag="v$VERSION-$BUILD_NUMBER"
+          git tag -a "$tag" "$SHA" -F - <<MSG
+          Lumigram $VERSION ($BUILD_NUMBER)
+
+          branch: $BRANCH
+          upstream: master $UPSTREAM
+          main: $MAIN
+          MSG
+          key="$RUNNER_TEMP/sync-key"
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          chmod 600 "$key"
+          GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git push --quiet "git@github.com:${GITHUB_REPOSITORY}.git" "refs/tags/$tag"
+          rm -f "$key"
+          echo "Tagged $tag at $SHA"
