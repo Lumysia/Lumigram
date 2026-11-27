@@ -40,15 +40,16 @@ public struct LumigramStrings {
     public var openStories: String { self.text("Open", zh: "打开") }
     public var appliesAfterRestart: String { self.text("Hiding stories applies after the app restarts.", zh: "隐藏动态在重启应用后生效。") }
     public var profilesHeader: String { self.text("Profiles", zh: "资料页") }
-    public var showUserInfo: String { self.text("ID, Data Center, Registration", zh: "ID、数据中心和注册时间") }
+    public var showUserInfo: String { self.text("IDs, Data Center and Dates", zh: "ID、数据中心和日期") }
     public var showUserInfoFooter: String {
         self.text(
-            "The registration month is estimated on this iPhone from the user ID.",
-            zh: "注册月份由本机根据用户 ID 估算。"
+            "Shown on profiles, groups and channels. A user's registration month is estimated on this iPhone from their ID; a chat's creation date comes from its first message.",
+            zh: "显示在个人资料、群组和频道中。用户的注册月份由本机根据 ID 估算；聊天的创建日期取自它的第一条消息。"
         )
     }
     public var userId: String { self.text("ID", zh: "ID") }
     public var dataCenter: String { self.text("Data Center", zh: "数据中心") }
+    public var created: String { self.text("Created", zh: "创建于") }
     public var registered: String { self.text("Registered", zh: "注册于") }
     public var filterHeader: String { self.text("Message Filter", zh: "消息过滤") }
     public var filterPlaceholder: String { self.text("One word or phrase per line", zh: "每行一个词或短语") }

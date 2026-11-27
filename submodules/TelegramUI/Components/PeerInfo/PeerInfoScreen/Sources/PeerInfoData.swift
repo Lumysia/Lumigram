@@ -16,6 +16,7 @@ import PhotoResources
 import PeerInfoPaneNode
 import WebUI
 import WalletContext
+import LumigramCore
 
 enum PeerInfoUpdatingAvatar {
     case none
@@ -1946,7 +1947,7 @@ func peerInfoScreenData(
             let didRefreshWelcomeMessages = Atomic<Bool>(value: false)
             
             return combineLatest(
-                context.account.viewTracker.peerView(peerId, updateData: true),
+                LumigramChatCreationDate.loading(context.account.viewTracker.peerView(peerId, updateData: true), engine: context.engine, peerId: peerId), // MARK: Lumigram
                 peerInfoAvailableMediaPanes(context: context, peerId: peerId, chatLocation: chatLocation, isMyProfile: false, chatLocationContextHolder: chatLocationContextHolder, sharedMediaFromForumTopic: sharedMediaFromForumTopic),
                 context.engine.data.subscribe(TelegramEngine.EngineData.Item.NotificationSettings.Global()),
                 status,

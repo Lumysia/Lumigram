@@ -762,6 +762,11 @@ func infoItems(
                     }))
                 }
                 
+                // MARK: Lumigram
+                for (index, row) in lumigramChatInfoRows(peer: .channel(channel), strings: presentationData.strings).enumerated() {
+                    items[currentPeerInfoSection]!.append(PeerInfoScreenLabeledValueItem(id: 20000 + index, label: row.label, text: row.text, action: { _, _ in UIPasteboard.general.string = row.text }, requestLayout: { _ in }))
+                }
+                
                 if let linkedCommunityData = data.linkedCommunityData, case .member = linkedCommunityData.peer.participationStatus {
                     items[.community]!.append(PeerInfoScreenCommunityItem(
                         id: ItemCommunity,
@@ -899,6 +904,10 @@ func infoItems(
                 } : nil, linkItemAction: bioLinkAction, contextAction: bioContextAction, requestLayout: { animated in
                     interaction.requestLayout(animated)
                 }))
+            }
+            // MARK: Lumigram
+            for (index, row) in lumigramChatInfoRows(peer: .legacyGroup(group), strings: presentationData.strings).enumerated() {
+                items[currentPeerInfoSection]!.append(PeerInfoScreenLabeledValueItem(id: 20000 + index, label: row.label, text: row.text, action: { _, _ in UIPasteboard.general.string = row.text }, requestLayout: { _ in }))
             }
         }
     }
