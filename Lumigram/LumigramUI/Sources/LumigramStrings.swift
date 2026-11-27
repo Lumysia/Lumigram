@@ -34,6 +34,14 @@ public struct LumigramStrings {
     public var userId: String { self.text("ID", zh: "ID") }
     public var dataCenter: String { self.text("Data Center", zh: "数据中心") }
     public var registered: String { self.text("Registered", zh: "注册于") }
+    public var filterHeader: String { self.text("Message Filter", zh: "消息过滤") }
+    public var filterPlaceholder: String { self.text("One word or phrase per line", zh: "每行一个词或短语") }
+    public var filterFooter: String {
+        self.text(
+            "Incoming messages that contain any of these are hidden in chats.",
+            zh: "包含其中任何一项的收到的消息不会在聊天中显示。"
+        )
+    }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {

@@ -6,4 +6,5 @@ public extension LumigramSettings.Keys {
     static let deletionEffect = LumigramSettings.Key<Bool>("deletionEffect", default: true)
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let showUserInfo = LumigramSettings.Key<Bool>("showUserInfo", default: true)
+    static let filterWords = LumigramSettings.Key<[String]>("filterWords", default: [])
 }
