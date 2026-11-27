@@ -7,3 +7,4 @@ LICENSE
 Telegram/Telegram-iOS/Resources/intro/telegram_*@2x.png
 submodules/RMIntro/Sources/platform/ios/Resources/telegram_*@2x.png
 submodules/TelegramUI/Images.xcassets/Components/AppBadge.imageset/
+submodules/TelegramUI/Images.xcassets/Components/LG*Badge.imageset/
