@@ -1,8 +1,8 @@
 import Foundation
+import LumigramBase
 
-/// Lumigram's own settings: one UserDefaults key per setting, kept in the app
-/// group so the app and its extensions read the same values. Nothing is stored
-/// in Postbox.
+/// Lumigram's own settings: one UserDefaults key per setting in
+/// LumigramDefaults.store. Nothing is stored in Postbox.
 public final class LumigramSettings {
     /// Keys are declared as static members of Keys (Keys.swift), so call sites
     /// can write `LumigramSettings.shared[.name]`.
@@ -16,7 +16,7 @@ public final class LumigramSettings {
         public let defaultValue: Value
 
         public init(_ name: String, default defaultValue: Value) {
-            self.name = "lumigram." + name
+            self.name = LumigramDefaults.key(name)
             self.defaultValue = defaultValue
             super.init()
         }
@@ -26,7 +26,7 @@ public final class LumigramSettings {
         }
     }
 
-    public static let shared = LumigramSettings(defaults: LumigramSettings.appGroupDefaults())
+    public static let shared = LumigramSettings(defaults: LumigramDefaults.store)
 
     private let defaults: UserDefaults
 
@@ -41,13 +41,5 @@ public final class LumigramSettings {
         set {
             self.defaults.set(newValue, forKey: key.name)
         }
-    }
-
-    private static func appGroupDefaults() -> UserDefaults {
-        var bundleId = Bundle.main.bundleIdentifier ?? ""
-        if Bundle.main.bundleURL.pathExtension == "appex", let dot = bundleId.lastIndex(of: ".") {
-            bundleId = String(bundleId[..<dot])
-        }
-        return UserDefaults(suiteName: "group.\(bundleId)") ?? .standard
     }
 }

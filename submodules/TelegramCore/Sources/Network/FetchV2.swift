@@ -3,6 +3,7 @@ import Postbox
 import SwiftSignalKit
 import MtProtoKit
 import RangeSet
+internal import LumigramBase
 internal import TelegramApi
 
 private let possiblePartLengths: [Int64] = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576]
@@ -506,11 +507,11 @@ private final class FetchImpl {
             if isStory {
                 self.defaultPartSize = 512 * 1024
             } else {
-                self.defaultPartSize = 128 * 1024
+                self.defaultPartSize = LumigramSpeedBoost.downloadPartSize(128 * 1024, fileSize: size) // MARK: Lumigram
             }
             self.cdnPartSize = 128 * 1024
-            self.masterPendingParts = self.fastDownloads ? fastDownloadMasterPendingParts : 6
-            self.cdnPendingParts = self.fastDownloads ? fastDownloadCdnPendingParts : 6
+            self.masterPendingParts = self.fastDownloads ? fastDownloadMasterPendingParts : LumigramSpeedBoost.pendingParts(6) // MARK: Lumigram
+            self.cdnPendingParts = self.fastDownloads ? fastDownloadCdnPendingParts : LumigramSpeedBoost.pendingParts(6) // MARK: Lumigram
             
             // The resource id tells concurrent downloads apart; an Api value prints only its constructor name.
             self.loggingIdentifier = resource.id.stringRepresentation

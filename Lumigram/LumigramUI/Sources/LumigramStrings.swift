@@ -1,5 +1,6 @@
 import Foundation
 import TelegramPresentationData
+import LumigramBase
 
 /// Lumigram's own interface text. Telegram's strings come from server language
 /// packs that know nothing of these, so each text carries its translations here
@@ -56,6 +57,23 @@ public struct LumigramStrings {
     public var confirmCall: String { self.text("Start a voice call?", zh: "要发起语音通话吗？") }
     public var confirmVideoCall: String { self.text("Start a video call?", zh: "要发起视频通话吗？") }
     public var call: String { self.text("Call", zh: "呼叫") }
+    public var speedBoostHeader: String { self.text("Upload and Download Speed", zh: "上传和下载速度") }
+    public func speedBoost(_ boost: LumigramSpeedBoost) -> String {
+        switch boost {
+        case .off:
+            return self.text("Off", zh: "关闭")
+        case .medium:
+            return self.text("Medium", zh: "中等")
+        case .maximum:
+            return self.text("Maximum", zh: "最大")
+        }
+    }
+    public var speedBoostFooter: String {
+        self.text(
+            "Moves files in bigger parts, more at a time, than Telegram's iOS app does. That puts more load on Telegram's servers, so turn it up only when you need it.",
+            zh: "比 Telegram 官方 iOS 应用用更大的分块、更多的并发传输文件。这会给 Telegram 的服务器带来更多负载，需要时再开启。"
+        )
+    }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {

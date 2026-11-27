@@ -7,12 +7,14 @@ import ItemListUI
 import AccountContext
 import PresentationDataUtils
 import LumigramCore
+import LumigramBase
 
 private let sourceCodeUrl = "https://github.com/Lumysia/Lumigram"
 
 private struct Section {
     enum Row {
         case toggle(String, LumigramSettings.Key<Bool>)
+        case choice(String, LumigramSettings.Key<Int>, value: Int)
         case link(String, url: String)
     }
 
@@ -39,16 +41,21 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .toggle(strings.linkPreviews, .linkPreviews),
             .toggle(strings.confirmCalls, .confirmCalls),
         ], footer: strings.privacyFooter),
+        Section(header: strings.speedBoostHeader, rows: LumigramSpeedBoost.allCases.map { boost -> Section.Row in
+            .choice(strings.speedBoost(boost), .speedBoost, value: boost.rawValue)
+        }, footer: strings.speedBoostFooter),
         Section(header: strings.aboutHeader, rows: [.link(strings.sourceCode, url: sourceCodeUrl)], footer: strings.aboutFooter),
     ]
 }
 
 private final class Arguments {
     let set: (LumigramSettings.Key<Bool>, Bool) -> Void
+    let choose: (LumigramSettings.Key<Int>, Int) -> Void
     let openUrl: (String) -> Void
 
-    init(set: @escaping (LumigramSettings.Key<Bool>, Bool) -> Void, openUrl: @escaping (String) -> Void) {
+    init(set: @escaping (LumigramSettings.Key<Bool>, Bool) -> Void, choose: @escaping (LumigramSettings.Key<Int>, Int) -> Void, openUrl: @escaping (String) -> Void) {
         self.set = set
+        self.choose = choose
         self.openUrl = openUrl
     }
 }
@@ -57,6 +64,7 @@ private struct Entry: ItemListNodeEntry {
     enum Content: Equatable {
         case header(String)
         case toggle(String, LumigramSettings.Key<Bool>, Bool)
+        case choice(String, LumigramSettings.Key<Int>, value: Int, checked: Bool)
         case link(String, url: String)
         case footer(String)
     }
@@ -77,6 +85,10 @@ private struct Entry: ItemListNodeEntry {
         case let .toggle(title, key, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: title, value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.set(key, value)
+            })
+        case let .choice(title, key, value, checked):
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
+                arguments.choose(key, value)
             })
         case let .link(title, url):
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: title, label: "", sectionId: self.section, style: .blocks, action: {
@@ -102,6 +114,8 @@ private func entries(_ sections: [Section]) -> [Entry] {
             switch row {
             case let .toggle(title, key):
                 append(.toggle(title, key, LumigramSettings.shared[key]))
+            case let .choice(title, key, value):
+                append(.choice(title, key, value: value, checked: LumigramSettings.shared[key] == value))
             case let .link(title, url):
                 append(.link(title, url: url))
             }
@@ -116,6 +130,9 @@ private func entries(_ sections: [Section]) -> [Entry] {
 public func lumigramSettingsScreen(context: AccountContext) -> ViewController {
     let changed = ValuePipe<Void>()
     let arguments = Arguments(set: { key, value in
+        LumigramSettings.shared[key] = value
+        changed.putNext(Void())
+    }, choose: { key, value in
         LumigramSettings.shared[key] = value
         changed.putNext(Void())
     }, openUrl: { url in

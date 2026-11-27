@@ -17,6 +17,7 @@ swift_library(
         "//submodules/AccountContext:AccountContext",
         "//submodules/PresentationDataUtils:PresentationDataUtils",
         "//Lumigram/LumigramCore:LumigramCore",
+        "//Lumigram/LumigramBase:LumigramBase",
     ],
     visibility = [
         "//visibility:public",
