@@ -327,22 +327,13 @@ filegroup(
     ]),
 )
 
+# MARK: Lumigram: our own icons, no Telegram logo.
 alternate_icon_folders = [
-    "BlackIcon",
-    "BlackClassicIcon",
-    "BlackFilledIcon",
-    "BlueIcon",
-    "BlueClassicIcon",
-    "BlueFilledIcon",
-    "WhiteFilledIcon",
-    "New1",
-    "New2",
-    "Premium",
-    "PremiumBlack",
-    "PremiumTurbo",
+    path[len("Telegram-iOS/"):-len(".alticon")]
+    for path in glob(["Telegram-iOS/LG*.alticon"], exclude_directories = 0)
 ]
 
-composer_icon_folders = ["Telegram"]
+composer_icon_folders = ["AppIcon"]
 
 [
     filegroup(

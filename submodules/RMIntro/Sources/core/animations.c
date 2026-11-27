@@ -423,9 +423,10 @@ void on_surface_created() {
 
 
     // Telegram
-    telegram_sphere = create_textured_rectangle(CSizeMake(148, 148), telegram_sphere_texture);
-    telegram_plane = create_textured_rectangle(CSizeMake(82, 74), telegram_plane_texture);
-    telegram_plane.params.anchor=xyzMake(6, -5, 0);
+    // MARK: Lumigram: our squircle and centred bubble glyph replace the sphere and plane.
+    telegram_sphere = create_textured_rectangle(CSizeMake(150, 150), telegram_sphere_texture);
+    telegram_plane = create_textured_rectangle(CSizeMake(94, 94), telegram_plane_texture);
+    telegram_plane.params.anchor=xyzMake(0, 0, 0);
 
 
 
