@@ -1,32 +1,10 @@
 # Files this fork owns. When replaying main onto a Swiftgram release, a conflict
-# only in these files keeps the fork's side (see scripts/replay-series.sh).
+# only in these files keeps the fork's side (see scripts/replay-series.sh); so
+# does a conflict over a file the fork deleted. Entries are shell patterns, and
+# an entry ending in / covers everything under it.
 README.md
 LICENSE
-crowdin.yml
-.github/workflows/build.yml
-Telegram/Telegram-iOS/SGBeta.alticon/
-Telegram/Telegram-iOS/SGBlack.alticon/
-Telegram/Telegram-iOS/SGDay.alticon/
-Telegram/Telegram-iOS/SGDefault.alticon/
-Telegram/Telegram-iOS/SGDucky.alticon/
-Telegram/Telegram-iOS/SGGlass.alticon/
-Telegram/Telegram-iOS/SGGold.alticon/
-Telegram/Telegram-iOS/SGInverted.alticon/
-Telegram/Telegram-iOS/SGLegacy.alticon/
-Telegram/Telegram-iOS/SGNeon.alticon/
-Telegram/Telegram-iOS/SGNeonBlue.alticon/
-Telegram/Telegram-iOS/SGNight.alticon/
-Telegram/Telegram-iOS/SGPro.alticon/
-Telegram/Telegram-iOS/SGSky.alticon/
-Telegram/Telegram-iOS/SGSparkling.alticon/
-Telegram/Telegram-iOS/SGTitanium.alticon/
-Telegram/Telegram-iOS/SGWhite.alticon/
-Telegram/Telegram-iOS/Swiftgram.icon/
 Swiftgram/SGSettingsUI/Images.xcassets/SwiftgramSettings.imageset/Swiftgram.pdf
-Swiftgram/SGAppBadgeAssets/Images.xcassets/DayAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/DuckyAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/NightAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/ProAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/SkyAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/SparklingAppBadge.imageset/
-Swiftgram/SGAppBadgeAssets/Images.xcassets/TitaniumAppBadge.imageset/
+Telegram/Telegram-iOS/LG*.alticon/
+Swiftgram/SGAppBadgeAssets/Images.xcassets/
+submodules/TelegramUI/Images.xcassets/Components/AppBadge.imageset/

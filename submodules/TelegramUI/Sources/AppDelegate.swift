@@ -1047,7 +1047,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
                 icons.append(PresentationAppIcon(name: "PremiumBlack", imageName: "PremiumBlack", isPremium: true))
                 
                 
-                icons = []
+                icons = lumigramAppIcons.map { PresentationAppIcon(name: $0.name, imageName: $0.name, isDefault: $0.isDefault) }
                 
                 return icons
             } else {

@@ -15,9 +15,7 @@ public struct AppBadge: Identifiable, Hashable {
 }
 
 public func getAvailableAppBadges() -> [AppBadge] {
-    return [
-        .init(displayName: "Default", assetName: "Components/AppBadge"),
-    ]
+    return lumigramAppBadges.map { AppBadge(displayName: $0.title, assetName: $0.assetName) }
 }
     
 struct AppBadgeSettingsView: View {

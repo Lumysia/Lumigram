@@ -8,6 +8,7 @@ import TelegramPresentationData
 import ItemListUI
 import PresentationDataUtils
 import AppBundle
+import SGSimpleSettings
 
 private func generateBorderImage(theme: PresentationTheme, bordered: Bool, selected: Bool) -> UIImage? {
     return generateImage(CGSize(width: 30.0, height: 30.0), rotatedContext: { size, context in
@@ -386,6 +387,10 @@ class ThemeSettingsAppIconItemNode: ListViewItemNode, ItemListItemNode {
 
                             var name = "Icon"
                             var bordered = true
+                            if let look = lumigramAppIcons.first(where: { $0.name == icon.name }) {
+                                name = look.title ?? item.strings.Appearance_AppIconDefault
+                                bordered = look.bordered
+                            } else {
                             switch icon.name {
                                 case "SGDefault":
                                     name = item.strings.Appearance_AppIconDefault
@@ -464,6 +469,7 @@ class ThemeSettingsAppIconItemNode: ListViewItemNode, ItemListItemNode {
                                     name = item.strings.Appearance_AppIconTurbo
                                 default:
                                     name = icon.name
+                            }
                             }
                         
                             imageNode.setup(theme: item.theme, icon: image, title: NSAttributedString(string: name, font: selected ? selectedTextFont : textFont, textColor: selected  ? item.theme.list.itemAccentColor : item.theme.list.itemPrimaryTextColor, paragraphAlignment: .center), locked: !item.isPremium && icon.isSGPro, color: item.theme.list.itemPrimaryTextColor, bordered: bordered, selected: selected, action: {
