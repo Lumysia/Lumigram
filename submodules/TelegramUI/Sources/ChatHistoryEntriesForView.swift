@@ -183,7 +183,7 @@ func chatHistoryEntriesForView(
         if pendingRemovedMessages.contains(message.id) {
             continue
         }
-        if lumigramFilter.hides(message) { // MARK: Lumigram
+        if lumigramFilter.hides(EngineMessage(message)) { // MARK: Lumigram
             continue
         }
         

@@ -4102,7 +4102,7 @@ public final class ChatHistoryListNodeImpl: ASDisplayNode, ChatHistoryNode, Chat
         }
         if let maxMessage = chatHistoryMaxVisibleReadIndex(rows: rows, topInset: self.insets.top, lastMessageId: lastMessageId, isThread: self.chatLocation.threadId != nil) {
             // MARK: Lumigram: at the end of the chat, read filtered messages after the last one shown.
-            let loadedMessages = lastMessageId == nil ? [] : ((self.listView.opaqueTransactionState as? ChatHistoryTransactionOpaqueState)?.historyView.originalView.entries.map(\.message) ?? [])
+            let loadedMessages = lastMessageId == nil ? [] : ((self.listView.opaqueTransactionState as? ChatHistoryTransactionOpaqueState)?.historyView.originalView.entries.map { EngineMessage($0.message) } ?? [])
             self.updateMaxVisibleReadIncomingMessageIndex(LumigramMessageFilter().readIndex(after: maxMessage, in: loadedMessages))
         }
     }
