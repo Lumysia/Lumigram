@@ -1,0 +1,9 @@
+# Files this fork owns. When replaying main onto upstream, a conflict only in
+# these files keeps the fork's side (see scripts/replay-series.sh); so does a
+# conflict over a file the fork deleted. Entries are shell patterns, and an
+# entry ending in / covers everything under it.
+README.md
+LICENSE
+Telegram/Telegram-iOS/Resources/intro/telegram_*@2x.png
+submodules/RMIntro/Sources/platform/ios/Resources/telegram_*@2x.png
+submodules/TelegramUI/Images.xcassets/Components/AppBadge.imageset/
