@@ -1,0 +1,14 @@
+{
+	"app_name": "Lumigram",
+	"bundle_id": "net.lumysia.messenger",
+	"api_id": "${TELEGRAM_API_ID}",
+	"api_hash": "${TELEGRAM_API_HASH}",
+	"team_id": "${APPLE_TEAM_ID}",
+	"is_internal_build": "false",
+	"is_appstore_build": "true",
+	"appstore_id": "6839824766",
+	"app_specific_url_scheme": "tg",
+	"premium_iap_product_id": "",
+	"enable_siri": true,
+	"enable_icloud": false
+}
