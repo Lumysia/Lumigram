@@ -1,81 +1,56 @@
-%PDF-1.7
-
+%PDF-1.4
+%Óëéá
 1 0 obj
-  << >>
+<</Title (ctx.html)
+/Creator (Mozilla/5.0 \(X11; Linux x86_64\) AppleWebKit/537.36 \(KHTML, like Gecko\) HeadlessChrome/158.0.0.0 Safari/537.36)
+/Producer (Skia/PDF m158)
+/CreationDate (D:20261127022403+00'00')
+/ModDate (D:20261127022403+00'00')>>
 endobj
-
-2 0 obj
-  << /Length 3 0 R >>
-stream
-/DeviceRGB CS
-/DeviceRGB cs
-q
-1.000000 0.000000 -0.000000 1.000000 4.000000 2.964844 cm
-0.000000 0.000000 0.000000 scn
-15.076375 10.766671 m
-15.473662 11.399487 14.937258 12.204764 14.200223 12.081993 c
-9.059459 11.225675 l
-8.855769 11.191745 8.670359 11.348825 8.670359 11.555322 c
-8.670359 18.524288 l
-8.670359 19.289572 7.652856 19.554642 7.279467 18.886631 c
-1.036950 7.718488 l
-0.658048 7.040615 1.293577 6.244993 2.038416 6.464749 c
-9.378864 8.630468 l
-9.637225 8.706696 9.814250 8.373775 9.606588 8.202201 c
-6.918006 5.980853 l
-6.462659 5.604639 6.199009 5.044809 6.199009 4.454151 c
-6.199009 -0.793964 l
-6.199009 -1.539309 7.174314 -1.820084 7.570620 -1.188831 c
-15.076375 10.766671 l
-h
-f*
-n
-Q
-
+3 0 obj
+<</ca 1
+/BM /Normal>>
+endobj
+4 0 obj
+<</Filter /FlateDecode
+/Length 308>> stream
+xœMKNÄ@D÷>E­‘îö§İ'`ÁÌ‚Aî/!»'3DJü’rÙÕÙºÌºÀ`<nÿ^»b¿Ğ7¥Ğxİ?ïôö€/ú¦­u+OÁcÛñÜ/ea¼>cÁÏ‰§_2etf\hÈ¢†ˆU56ì”äÃÑéÉº“N/RS´9ÆL¥#FÇ'uÑšÕ›#\Ñ{GèÈŒV=]áæµßBV­İI™Fl¥;òît®ìÂ†)GQİsÕå/ò‘o2®‘ŠFw|’JÀ#’|ÂgÀX1Ò©\u'½hƒ·U×†¤Ü™rõH)gúxX!g†4Íİ}Bm^ÉÂ6‘§Ó‹òG‡¿«ÖäpÜ¦˜ñ¡*W¨LÚñí¦êÔÃq›¢rì¸«÷÷)ÿ’^ÏQÇ¢z¡?,Ï‚
 endstream
 endobj
-
-3 0 obj
-  702
+2 0 obj
+<</Type /Page
+/Resources <</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/ExtGState <</G3 3 0 R>>>>
+/MediaBox [0 0 24 24]
+/Contents 4 0 R
+/Tabs /S
+/Parent 5 0 R>>
 endobj
-
-4 0 obj
-  << /Annots []
-     /Type /Page
-     /MediaBox [ 0.000000 0.000000 24.000000 24.000000 ]
-     /Resources 1 0 R
-     /Contents 2 0 R
-     /Parent 5 0 R
-  >>
-endobj
-
 5 0 obj
-  << /Kids [ 4 0 R ]
-     /Count 1
-     /Type /Pages
-  >>
+<</Type /Pages
+/Count 1
+/Kids [2 0 R]>>
 endobj
-
 6 0 obj
-  << /Pages 5 0 R
-     /Type /Catalog
-  >>
+<</Type /Catalog
+/Pages 5 0 R
+/ViewerPreferences <</Type /ViewerPreferences
+/DisplayDocTitle true>>
+/Lang (en-US)>>
 endobj
-
 xref
 0 7
-0000000000 65535 f
-0000000010 00000 n
-0000000034 00000 n
-0000000792 00000 n
-0000000814 00000 n
-0000000987 00000 n
-0000001061 00000 n
+0000000000 65535 f 
+0000000015 00000 n 
+0000000693 00000 n 
+0000000278 00000 n 
+0000000315 00000 n 
+0000000871 00000 n 
+0000000926 00000 n 
 trailer
-<< /ID [ (some) (id) ]
-   /Root 6 0 R
-   /Size 7
->>
+<</Size 7
+/Root 6 0 R
+/Info 1 0 R>>
 startxref
-1120
+1057
 %%EOF

@@ -424,7 +424,7 @@ void on_surface_created() {
     // MARK: Swiftgram
     // Telegram
     telegram_sphere = create_textured_rectangle(CSizeMake(150, 150), telegram_sphere_texture);
-    telegram_plane = create_textured_rectangle(CSizeMake(71, 103), telegram_plane_texture);
+    telegram_plane = create_textured_rectangle(CSizeMake(94, 94), telegram_plane_texture);
     telegram_plane.params.anchor=xyzMake(0, 0, 0);
 
 

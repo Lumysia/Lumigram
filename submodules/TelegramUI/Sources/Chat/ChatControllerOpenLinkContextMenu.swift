@@ -1,3 +1,4 @@
+import SGSimpleSettings
 import Foundation
 import UIKit
 import SwiftSignalKit
@@ -30,7 +31,7 @@ private enum ChatLinkReverseOpenTarget {
     func title(strings: PresentationStrings) -> String {
         switch self {
         case .inApp:
-            return strings.WebBrowser_Exception_OpenInApp.replacingOccurrences(of: "Telegram", with: "Swiftgram") /* MARK: Swiftgram */
+            return strings.WebBrowser_Exception_OpenInApp.replacingOccurrences(of: "Telegram", with: sgAppName) /* MARK: Swiftgram */
         case .externalBrowser:
             return strings.WebBrowser_Exception_OpenInBrowser
         }
@@ -254,7 +255,7 @@ extension ChatControllerImpl {
                     }))
 
                     if let openMode {
-                        let reverseText = openMode.shouldOpenInApp ? self.presentationData.strings.Chat_ContextMenu_OpenInBrowser : self.presentationData.strings.Chat_ContextMenu_OpenInApp.replacingOccurrences(of: "Telegram", with: "Swiftgram") /* MARK: Swiftgram */
+                        let reverseText = openMode.shouldOpenInApp ? self.presentationData.strings.Chat_ContextMenu_OpenInBrowser : self.presentationData.strings.Chat_ContextMenu_OpenInApp.replacingOccurrences(of: "Telegram", with: sgAppName) /* MARK: Swiftgram */
                         items.append(ActionSheetButtonItem(title: reverseText, color: .accent, action: { [weak self, weak actionSheet] in
                             actionSheet?.dismissAnimated()
                             guard let self else {
@@ -384,7 +385,7 @@ extension ChatControllerImpl {
             )
 
             if let openMode {
-                let reverseText = openMode.shouldOpenInApp ? self.presentationData.strings.Chat_ContextMenu_OpenInBrowser : self.presentationData.strings.Chat_ContextMenu_OpenInApp.replacingOccurrences(of: "Telegram", with: "Swiftgram") /* MARK: Swiftgram */
+                let reverseText = openMode.shouldOpenInApp ? self.presentationData.strings.Chat_ContextMenu_OpenInBrowser : self.presentationData.strings.Chat_ContextMenu_OpenInApp.replacingOccurrences(of: "Telegram", with: sgAppName) /* MARK: Swiftgram */
                 items.append(
                     .action(ContextMenuActionItem(text: reverseText, icon: { theme in return generateTintedImage(image: openMode.shouldOpenInApp ? UIImage(bundleImageName: "Chat/Context Menu/Globe") : UIImage(bundleImageName: "Chat/Context Menu/Browser"), color: theme.contextMenu.primaryColor) }, action: { [weak self] _, f in
                         f(.default)

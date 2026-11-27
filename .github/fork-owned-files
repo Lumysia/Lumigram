@@ -8,3 +8,9 @@ Swiftgram/SGSettingsUI/Images.xcassets/SwiftgramSettings.imageset/Swiftgram.pdf
 Telegram/Telegram-iOS/LG*.alticon/
 Swiftgram/SGAppBadgeAssets/Images.xcassets/
 submodules/TelegramUI/Images.xcassets/Components/AppBadge.imageset/
+Telegram/Telegram-iOS/Resources/intro/telegram_plane1@2x.png
+Telegram/Telegram-iOS/Resources/intro/telegram_sphere@2x.png
+submodules/RMIntro/Sources/platform/ios/Resources/telegram_plane1@2x.png
+submodules/RMIntro/Sources/platform/ios/Resources/telegram_sphere@2x.png
+Swiftgram/SGSettingsUI/Images.xcassets/SwiftgramContextMenu.imageset/
+Telegram/Telegram-iOS/DefaultAppIcon.xcassets/AppIconLLC.appiconset/Swiftgram.png
