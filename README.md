@@ -1,116 +1,110 @@
-# Telegram iOS Source Code Compilation Guide
+# Lumigram
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+Lumigram is an unofficial Telegram client for iOS: [Telegram for iOS](https://github.com/TelegramMessenger/Telegram-iOS)
+with a few changes of our own, kept small so it can follow every Telegram release. Everything stays on the device: no
+servers of our own, no accounts, no purchases.
 
-# Creating your Telegram Application
+## What's different
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+- Its own name, icons and intro.
+- Chats and voice messages are translated and transcribed on the device, without Premium.
+- A Lumigram page in Settings with a handful of options: seconds in message times, send with Return, the deletion
+  animation, hiding the stories bar, IDs on profiles, quieter notifications, link previews and asking before calls.
+- Passkeys work with Lumigram's own domain.
 
-# Quick Compilation Guide
+Lumigram doesn't try to match other clients feature for feature. Options that would need bigger changes inside
+Telegram's code are left out, because each one makes following Telegram slower; the code's own history has the
+ones we tried and dropped.
 
-## Get the Code
+## Releases
+
+There is one Lumigram release per Telegram release on the App Store. Telegram publishes the source of each App Store
+version as a `release-X.Y` tag, usually within a couple of days; `.github/workflows/lumigram-sync.yml` checks the
+App Store daily, takes the newest tag at or below its version and replays `main` onto it with
+`.github/scripts/replay-series.sh`. The result is `lumigram/X.Y`, which CI builds and uploads to TestFlight. Pushes
+to `main` are built the same way, on the current release.
+
+- `main` holds the Lumigram commits on the upstream release they were last rebased onto. Changes go here.
+- `lumigram/X.Y` is upstream `release-X.Y` with the commits of `main` replayed on top. CI generates and
+  force-pushes it; don't commit to it.
+- `vX.Y-N` tags mark builds (Telegram's version X.Y, build number N); `vX.Y` marks the release build of X.Y.
+- `swiftgram/*` keeps the earlier Lumigram, which was based on Swiftgram.
+
+The replay keeps each commit's author, committer and dates, so the same inputs give the same commit and nothing is
+built twice. A replay that conflicts outside `.github/fork-owned-files` opens an issue labelled `sync-conflict`; to
+fix it, rebase `main` onto the new release tag and force-push `main`.
+
+## Building
+
+Lumigram builds like Telegram for iOS: with Bazel, through `build-system/Make/Make.py`, on macOS with the Xcode
+version in `versions.json`. `build-system/lumigram-configuration.json` is the configuration CI uses; the values in
+`${...}` come from repository secrets.
+
+### Before you start
+
+1. [Get your own api_id](https://core.telegram.org/api/obtaining_api_id). Telegram's sample id only works for testing.
+2. Telegram asks third-party apps not to use "Telegram" in their name and not to use its paper plane logo.
+3. Read Telegram's [security guidelines](https://core.telegram.org/mtproto/security_guidelines).
+4. If you publish an app built from this code, publish your source too (see License).
+
+### Get the code
 
 ```
-git clone --recursive -j8 https://github.com/TelegramMessenger/Telegram-iOS.git
+git clone --recursive -j8 https://github.com/Lumysia/Lumigram.git
 ```
 
-## Setup Xcode
+### Configuration
 
-Install Xcode (directly from https://developer.apple.com/download/applications or using the App Store).
+Copy `build-system/template_minimal_development_configuration.json` and fill in your bundle id, api_id, api_hash and
+team id. `app_name` sets the name shown on the home screen; it defaults to `Telegram`.
 
-## Adjust Configuration
-
-1. Generate a random identifier:
-```
-openssl rand -hex 8
-```
-2. Create a new Xcode project. Use `Telegram` as the Product Name. Use `org.{identifier from step 1}` as the Organization Identifier.
-3. Open `Keychain Access` and navigate to `Certificates`. Locate `Apple Development: your@email.address (XXXXXXXXXX)` and double tap the certificate. Under `Details`, locate `Organizational Unit`. This is the Team ID.
-4. Edit `build-system/template_minimal_development_configuration.json`. Use data from the previous steps.
-
-## Generate an Xcode project
+### Xcode project
 
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     generateProject \
-    --configurationPath=build-system/template_minimal_development_configuration.json \
+    --configurationPath=path/to/configuration.json \
     --xcodeManagedCodesigning
 ```
 
-# Advanced Compilation Guide
+For a simulator-only build add `--disableProvisioningProfiles`; no code signing is needed then.
 
-## Xcode
+### IPA
 
-1. Copy and edit `build-system/appstore-configuration.json`.
-2. Copy `build-system/fake-codesigning`. Create and download provisioning profiles, using the `profiles` folder as a reference for the entitlements.
-3. Generate an Xcode project:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=configuration_from_step_1.json \
-    --codesigningInformationPath=directory_from_step_2
-```
+Create provisioning profiles for the app and its extensions (`build-system/fake-codesigning/profiles` lists them and
+their entitlements), put them with your certificates in a codesigning folder, then run:
 
-## IPA
-
-1. Repeat the steps from the previous section. Use distribution provisioning profiles.
-2. Run:
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     build \
-    --configurationPath=...see previous section... \
-    --codesigningInformationPath=...see previous section... \
+    --configurationPath=path/to/configuration.json \
+    --codesigningInformationPath=path/to/codesigning \
     --buildNumber=100001 \
     --configuration=release_arm64
 ```
 
-# FAQ
+`.github/workflows/lumigram-build.yml` does the same on GitHub's `xcode-27` runner and uploads the result to
+TestFlight. Before the app, it compiles the libraries that changed since the newest build
+(`.github/scripts/compile-check-targets.py`), so a compile error shows up within minutes.
 
-## Xcode is stuck at "build-request.json not updated yet"
-
-Occasionally, you might observe the following message in your build log:
-```
-"/Users/xxx/Library/Developer/Xcode/DerivedData/Telegram-xxx/Build/Intermediates.noindex/XCBuildData/xxx.xcbuilddata/build-request.json" not updated yet, waiting...
-```
-
-Should this occur, simply cancel the ongoing build and initiate a new one.
-
-## Telegram_xcodeproj: no such package 
-
-Following a system restart, the auto-generated Xcode project might encounter a build failure accompanied by this error:
-```
-ERROR: Skipping '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj:Telegram_xcodeproj': no such package '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj': BUILD file not found in directory 'generator/Telegram/Telegram_xcodeproj' of external repository @rules_xcodeproj_generated. Add a BUILD file to a directory to mark it as a package.
-```
-
-If you encounter this issue, re-run the project generation steps in the README.
-
-
-# Tips
-
-## Codesigning is not required for simulator-only builds
-
-Add `--disableProvisioningProfiles`:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=path-to-configuration.json \
-    --codesigningInformationPath=path-to-provisioning-data \
-    --disableProvisioningProfiles
-```
-
-## Versions
-
-Each release is built using a specific Xcode version (see `versions.json`). The helper script checks the versions of the installed software and reports an error if they don't match the ones specified in `versions.json`. It is possible to bypass these checks:
+To replay locally:
 
 ```
-python3 build-system/Make/Make.py --overrideXcodeVersion build ... # Don't check the version of Xcode
+git remote add upstream https://github.com/TelegramMessenger/Telegram-iOS.git
+git fetch upstream master tag release-X.Y
+.github/scripts/replay-series.sh release-X.Y main
 ```
+
+### Troubleshooting
+
+If Xcode waits on "build-request.json not updated yet", cancel the build and start it again.
+
+If the generated project fails with "Telegram_xcodeproj: no such package" after a restart, generate the project again.
+
+## License
+
+Telegram for iOS is licensed under the GNU General Public License v2.0 or later, and so is Lumigram. See
+[LICENSE](LICENSE). Credit for nearly all of this code goes to the Telegram developers; bundled
+third-party libraries keep their own licenses.
