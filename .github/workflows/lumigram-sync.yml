@@ -35,6 +35,7 @@ on:
 permissions:
   contents: write
   issues: write
+  actions: write # the build deletes superseded Bazel caches
 
 concurrency:
   group: lumigram-sync
@@ -124,10 +125,10 @@ jobs:
           if [ "$REBUILD" != true ]; then
             if [ -n "$(git tag --points-at "$sha" 'v*')" ]; then
               echo "Already built: $(git tag --points-at "$sha" 'v*' | tr '\n' ' ')"; build=false
+            elif [ -n "$last" ] && git diff --quiet "$last" "$sha" -- . ':(exclude)*.md' ':(exclude)LICENSE' ':(exclude).github'; then
+              echo "Only docs or CI changed since $last."; build=false
             elif [ "$remote" = "$sha" ]; then
               echo "$branch is already at $sha and was not tagged: the last build failed. Use rebuild to retry."; build=false
-            elif [ -n "$last" ] && git diff --quiet "$last" "$sha" -- . ':(exclude)*.md' ':(exclude)LICENSE'; then
-              echo "Only docs changed since $last."; build=false
             fi
           fi
           echo "Last tag on $branch: ${last:-none}; remote: ${remote:-none}; build: $build"

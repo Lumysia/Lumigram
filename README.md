@@ -80,7 +80,8 @@ python3 build-system/Make/Make.py \
 ```
 
 `.github/workflows/lumigram-build.yml` does the same on GitHub's `xcode-27` runner and checks the built app for the
-removed Swiftgram hosts and for leftover "Swiftgram" names.
+removed Swiftgram hosts and for leftover "Swiftgram" names. Before the app, it compiles the libraries that changed
+since the newest release tag (`.github/scripts/compile-check-targets.py`), so a compile error shows up within minutes.
 
 `.github/workflows/lumigram-sync.yml` runs every six hours and on each push to `main`. It replays `main` onto the
 newest Swiftgram release branch with `.github/scripts/replay-series.sh`. If that gives a new commit, it pushes it to
