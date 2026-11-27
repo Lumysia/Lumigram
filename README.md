@@ -1,129 +1,83 @@
-# Swiftgram
+# Lumigram
 
-Supercharged Telegram fork for iOS
+Lumigram is an unofficial Telegram client for iOS. It is built on [Swiftgram](https://github.com/Swiftgram/Telegram-iOS),
+which in turn is built on [Telegram for iOS](https://github.com/TelegramMessenger/Telegram-iOS), and it uses the
+Telegram API like every Telegram app.
 
-[<img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="50">](https://apps.apple.com/app/apple-store/id6471879502?pt=126511626&ct=gh&mt=8)
+It keeps Swiftgram's features that work on the device and removes the parts that talk to Swiftgram's own services:
 
-- Download: [App Store](https://apps.apple.com/app/apple-store/id6471879502?pt=126511626&ct=gh&mt=8)
-- Telegram channel: https://t.me/swiftgram
-- Telegram chat: https://t.me/swiftgramchat
-- TestFlight beta, local chats, translations and other [@SwiftgramLinks](https://t.me/s/SwiftgramLinks)
+- No Swiftgram server. The app doesn't ask the Swiftgram bot for a login token at launch, doesn't fetch or upload
+  settings, and doesn't unblock the bot if you blocked it. Settings stay on the phone.
+- Registration dates are estimated on the device from public user id and date anchors
+  ([GetIDs bot data](https://github.com/wjclub/telegram-bot-getids), MIT). Opening a profile sends nothing anywhere.
+- Translation uses Apple's on-device Translation framework (iOS 18 and later) by default. Telegram's own translation
+  can be chosen in settings. Message text is never sent to Google.
+- No announcements or translation strings downloaded from GitHub. The app uses the strings it ships with.
+- No in-app purchases, receipt uploads or subscription status checks.
 
-Swiftgram's compilation steps are the same as for the official app. Below you'll find a complete compilation guide based on the official app.
+Each of these is a separate commit on top of Swiftgram, so new Swiftgram releases merge in with few conflicts.
 
-# Telegram iOS Source Code Compilation Guide
+## Building
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+Lumigram builds like Telegram for iOS: with Bazel, through `build-system/Make/Make.py`, on macOS with the Xcode
+version in `versions.json`.
 
-# Creating your Telegram Application
+### Before you start
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+1. [Get your own api_id](https://core.telegram.org/api/obtaining_api_id). Telegram's sample id only works for testing.
+2. Telegram asks third-party apps not to use "Telegram" in their name and not to use its paper plane logo.
+3. Read Telegram's [security guidelines](https://core.telegram.org/mtproto/security_guidelines).
+4. If you publish an app built from this code, publish your source too (see License).
 
-# Quick Compilation Guide
-
-## Get the Code
+### Get the code
 
 ```
-git clone --recursive -j8 https://github.com/Swiftgram/Telegram-iOS.git
+git clone --recursive -j8 https://github.com/Lumysia/Lumigram.git
 ```
 
-## Setup Xcode
+### Configuration
 
-Install Xcode (directly from https://developer.apple.com/download/applications or using the App Store).
+Copy `build-system/template_minimal_development_configuration.json` and fill in your bundle id, api_id, api_hash and
+team id. `app_name` sets the name shown on the home screen; it defaults to `Swiftgram`.
 
-## Adjust Configuration
-
-1. Generate a random identifier:
-```
-openssl rand -hex 8
-```
-2. Create a new Xcode project. Use `Swiftgram` as the Product Name. Use `org.{identifier from step 1}` as the Organization Identifier.
-3. Open `Keychain Access` and navigate to `Certificates`. Locate `Apple Development: your@email.address (XXXXXXXXXX)` and double tap the certificate. Under `Details`, locate `Organizational Unit`. This is the Team ID.
-4. Edit `build-system/template_minimal_development_configuration.json`. Use data from the previous steps.
-
-## Generate an Xcode project
+### Xcode project
 
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     generateProject \
-    --configurationPath=build-system/template_minimal_development_configuration.json \
+    --configurationPath=path/to/configuration.json \
     --xcodeManagedCodesigning
 ```
 
-# Advanced Compilation Guide
+For a simulator-only build add `--disableProvisioningProfiles`; no code signing is needed then.
 
-## Xcode
+### IPA
 
-1. Copy and edit `build-system/appstore-configuration.json`.
-2. Copy `build-system/fake-codesigning`. Create and download provisioning profiles, using the `profiles` folder as a reference for the entitlements.
-3. Generate an Xcode project:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=configuration_from_step_1.json \
-    --codesigningInformationPath=directory_from_step_2
-```
+Create provisioning profiles for the app and its extensions (`build-system/fake-codesigning/profiles` lists them and
+their entitlements), put them with your certificates in a codesigning folder, then run:
 
-## IPA
-
-1. Repeat the steps from the previous section. Use distribution provisioning profiles.
-2. Run:
 ```
 python3 build-system/Make/Make.py \
     --cacheDir="$HOME/telegram-bazel-cache" \
     build \
-    --configurationPath=...see previous section... \
-    --codesigningInformationPath=...see previous section... \
+    --configurationPath=path/to/configuration.json \
+    --codesigningInformationPath=path/to/codesigning \
     --buildNumber=100001 \
     --configuration=release_arm64
 ```
 
-# FAQ
+`.github/workflows/lumigram-build.yml` does the same on GitHub's `xcode-27` runner and checks the built app for the
+removed Swiftgram hosts. `lumigram-sync.yml` merges each new Swiftgram release.
 
-## Xcode is stuck at "build-request.json not updated yet"
+### Troubleshooting
 
-Occasionally, you might observe the following message in your build log:
-```
-"/Users/xxx/Library/Developer/Xcode/DerivedData/Telegram-xxx/Build/Intermediates.noindex/XCBuildData/xxx.xcbuilddata/build-request.json" not updated yet, waiting...
-```
+If Xcode waits on "build-request.json not updated yet", cancel the build and start it again.
 
-Should this occur, simply cancel the ongoing build and initiate a new one.
+If the generated project fails with "Telegram_xcodeproj: no such package" after a restart, generate the project again.
 
-## Telegram_xcodeproj: no such package 
+## License
 
-Following a system restart, the auto-generated Xcode project might encounter a build failure accompanied by this error:
-```
-ERROR: Skipping '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj:Telegram_xcodeproj': no such package '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj': BUILD file not found in directory 'generator/Telegram/Telegram_xcodeproj' of external repository @rules_xcodeproj_generated. Add a BUILD file to a directory to mark it as a package.
-```
-
-If you encounter this issue, re-run the project generation steps in the README.
-
-
-# Tips
-
-## Codesigning is not required for simulator-only builds
-
-Add `--disableProvisioningProfiles`:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=path-to-configuration.json \
-    --codesigningInformationPath=path-to-provisioning-data \
-    --disableProvisioningProfiles
-```
-
-## Versions
-
-Each release is built using a specific Xcode version (see `versions.json`). The helper script checks the versions of the installed software and reports an error if they don't match the ones specified in `versions.json`. It is possible to bypass these checks:
-
-```
-python3 build-system/Make/Make.py --overrideXcodeVersion build ... # Don't check the version of Xcode
-```
+Telegram for iOS is licensed under the GNU General Public License v2.0 or later, and so are Swiftgram and Lumigram.
+See [LICENSE](LICENSE). Credit for nearly all of this code goes to the Telegram and Swiftgram developers; bundled
+third-party libraries keep their own licenses.

@@ -1,0 +1,5 @@
+# Files this fork owns. A Swiftgram merge that conflicts only here keeps the fork's side.
+README.md
+LICENSE
+crowdin.yml
+.github/workflows/build.yml
