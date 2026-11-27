@@ -13,6 +13,7 @@ import DeviceAccess
 import TelegramStringFormatting
 import PeerNameColorItem
 import WalletContext
+import LumigramUI
 
 enum SettingsSection: Int, CaseIterable {
     case edit
@@ -269,6 +270,10 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }))
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
         interaction.openSettings(.appearance)
+    }))
+    // MARK: Lumigram
+    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 7, text: LumigramStrings(presentationData.strings).settingsTitle, icon: lumigramSettingsIcon, action: {
+        interaction.openSettings(.lumigram)
     }))
     
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 6, label: .text(data.isPowerSavingEnabled == true ? presentationData.strings.Settings_PowerSavingOn : presentationData.strings.Settings_PowerSavingOff), text: presentationData.strings.Settings_PowerSaving, icon: PresentationResourcesSettings.powerSaving, action: {
