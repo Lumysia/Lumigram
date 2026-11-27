@@ -1,4 +1,5 @@
-# Files this fork owns. A Swiftgram merge that conflicts only here keeps the fork's side.
+# Files this fork owns. When replaying main onto a Swiftgram release, a conflict
+# only in these files keeps the fork's side (see scripts/replay-series.sh).
 README.md
 LICENSE
 crowdin.yml
