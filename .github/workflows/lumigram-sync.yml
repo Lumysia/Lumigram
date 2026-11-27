@@ -1,0 +1,270 @@
+name: Lumigram sync
+
+# One Lumigram release per Telegram release on the App Store. Telegram tags the
+# source of each App Store version upstream as release-X.Y, usually within two
+# days, and some versions never get a tag. So the base is the newest release-*
+# tag at or below the version the App Store has now, and lumigram/X.Y is the
+# commits of main replayed onto it. lumigram/* branches are generated and
+# force-pushed, never edited.
+#
+# A replay that differs from the last build is built, uploaded to TestFlight and
+# tagged vX.Y-<build>. Groups with access to all builds get every build. The
+# first build on a new base is the release of that version: it also goes to the
+# release group (repository variable TESTFLIGHT_RELEASE_GROUP) and is tagged
+# vX.Y. Pushes to main build the same way, on the current base, so changes on
+# main don't wait for Telegram but never count as a release.
+#
+# A replay that needs a human opens (or updates) an issue labelled
+# "sync-conflict"; fix it by rebasing main onto the release tag.
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - LICENSE
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only replay and report; push, build and tag nothing
+        type: boolean
+        default: false
+      rebuild:
+        description: Build even if this commit was already pushed or tagged
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write # the build deletes superseded Bazel caches
+
+concurrency:
+  group: lumigram-sync
+  cancel-in-progress: false
+
+env:
+  TELEGRAM_APP_STORE_ID: "686449807"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.replay.outputs.build }}
+      release: ${{ steps.replay.outputs.release }}
+      release_build: ${{ steps.replay.outputs.release_build }}
+      sha: ${{ steps.replay.outputs.sha }}
+      branch: ${{ steps.replay.outputs.branch }}
+      version: ${{ steps.replay.outputs.version }}
+      upstream: ${{ steps.replay.outputs.upstream }}
+      main: ${{ steps.replay.outputs.main }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Replay main onto Telegram's App Store release
+        id: replay
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          REBUILD: ${{ inputs.rebuild || false }}
+          DEPLOY_KEY: ${{ secrets.SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # No background gc after the big fetch: it holds index.lock during the replay.
+          git config gc.auto 0
+          git config maintenance.auto false
+          git remote add upstream https://github.com/TelegramMessenger/Telegram-iOS.git
+          git fetch --quiet --force --tags origin
+
+          # 13.0 and 13.0.0 are the same version.
+          norm() { sed -E 's/(\.0)+$//' <<< "$1"; }
+          store="$(curl -fsS --retry 3 "https://itunes.apple.com/lookup?id=$TELEGRAM_APP_STORE_ID&country=us" | jq -r '.results[0].version // empty')"
+          [ -n "$store" ] || { echo "::error::The App Store lookup returned no version."; exit 1; }
+          tag=""
+          for candidate in $(git ls-remote --tags --refs upstream 'release-*' | sed 's|.*refs/tags/||' | sort -rV); do
+            if [ "$(printf '%s\n%s\n' "$(norm "${candidate#release-}")" "$(norm "$store")" | sort -V | tail -1)" = "$(norm "$store")" ]; then
+              tag="$candidate"; break
+            fi
+          done
+          [ -n "$tag" ] || { echo "::error::No upstream release tag at or below $store."; exit 1; }
+          git fetch --quiet upstream 'refs/heads/master:refs/remotes/upstream/master' "refs/tags/$tag:refs/remotes/upstream/tags/$tag"
+          upstream="refs/remotes/upstream/tags/$tag"
+          version="$(git show "$upstream:versions.json" | jq -r .app)"
+          [ "$(norm "$version")" = "$(norm "${tag#release-}")" ] || echo "::warning::$tag has app version $version in versions.json."
+          branch="lumigram/$version"
+          main="$(git rev-parse HEAD)"
+          echo "App Store: Telegram $store. Base: $tag ($(git rev-parse --short "$upstream^{commit}")), version $version."
+          {
+            echo "branch=$branch"
+            echo "version=$version"
+            echo "upstream=$tag $(git rev-parse "$upstream^{commit}")"
+            echo "main=$main"
+          } >> "$GITHUB_OUTPUT"
+
+          status=0
+          out="$(.github/scripts/replay-series.sh "$upstream^{commit}" "$main")" || status=$?
+          if [ "$status" -ne 0 ]; then
+            printf '%s\n' "$out"
+            [ "$status" -ne 1 ] && { echo "::error::The replay failed (exit $status) without a conflict."; exit "$status"; }
+            [ "$DRY_RUN" = true ] && { echo "::error::Dry run: the replay conflicts."; exit 1; }
+            body="$(printf 'Replaying main onto upstream `%s` (Telegram %s on the App Store) needs a human.\n\n```\n%s\n```\n\nRebase main onto `%s`, resolve, and force-push main; the next sync builds `%s`.\n' \
+              "$tag" "$store" "$out" "$tag" "$branch")"
+            gh label create sync-conflict --color B60205 --force > /dev/null
+            existing="$(gh issue list --label sync-conflict --state open --json number --jq '.[0].number // empty')"
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --body "$body"
+            else
+              gh issue create --title "Telegram $version needs a manual rebase" --label sync-conflict --body "$body"
+            fi
+            exit 1
+          fi
+          printf '%s\n' "$out"
+          sha="$(git rev-parse HEAD)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+          by_build() { sort -t- -k2 -n | tail -1; }
+          built="$(git tag --points-at "$sha" "v$version-*" | by_build)"
+          last="$(git tag -l "v$version-*" | by_build)"
+          remote="$(git rev-parse -q --verify "refs/remotes/origin/$branch" || true)"
+          release=true
+          git rev-parse -q --verify "refs/tags/v$version" > /dev/null && release=false
+
+          build=true
+          if [ "$REBUILD" != true ]; then
+            if [ -n "$built" ]; then
+              echo "Already built: $built."; build=false
+            elif [ -n "$last" ] && git diff --quiet "$last" "$sha" -- . ':(exclude)*.md' ':(exclude)LICENSE' ':(exclude).github'; then
+              echo "Only docs or CI changed since $last."; build=false
+            elif [ "$remote" = "$sha" ]; then
+              echo "$branch is already at $sha and was not tagged: the last build failed. Use rebuild to retry."; build=false
+            fi
+          fi
+          # Without a new build, a version that has no release yet gets its newest build.
+          release_build=""
+          if [ "$build" = false ] && [ "$release" = true ] && [ -n "$last" ]; then
+            release_build="${last##*-}"
+          fi
+          echo "Last build of $version: ${last:-none}; remote $branch: ${remote:-none}; build: $build; release: $release${release_build:+ (build $release_build)}"
+
+          if [ "$DRY_RUN" = true ]; then
+            echo "Dry run: would push $sha to $branch."
+            printf 'build=false\nrelease=false\n' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'build=%s\nrelease=%s\nrelease_build=%s\n' "$build" "$release" "$release_build" >> "$GITHUB_OUTPUT"
+
+          if [ "$remote" != "$sha" ]; then
+            # A deploy key, because GITHUB_TOKEN may not push commits that touch workflows.
+            key="$RUNNER_TEMP/sync-key"
+            printf '%s\n' "$DEPLOY_KEY" > "$key"
+            chmod 600 "$key"
+            GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+              git push --quiet --force "git@github.com:${GITHUB_REPOSITORY}.git" "$sha:refs/heads/$branch"
+            rm -f "$key"
+            echo "Pushed $branch at $sha"
+          fi
+          gh issue list --label sync-conflict --state open --json number --jq '.[].number' \
+            | xargs -r -I{} gh issue close {} --comment "Replayed cleanly onto $tag: $branch is at $sha."
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.build == 'true'
+    uses: ./.github/workflows/lumigram-build.yml
+    with:
+      ref: ${{ needs.prepare.outputs.sha }}
+      upload: true
+    secrets: inherit
+
+  tag:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+
+      - name: Tag the build
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+          BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+          BRANCH: ${{ needs.prepare.outputs.branch }}
+          UPSTREAM: ${{ needs.prepare.outputs.upstream }}
+          SHA: ${{ needs.prepare.outputs.sha }}
+          MAIN: ${{ needs.prepare.outputs.main }}
+          DEPLOY_KEY: ${{ secrets.SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          tag="v$VERSION-$BUILD_NUMBER"
+          git tag -a "$tag" "$SHA" -F - <<MSG
+          Lumigram $VERSION ($BUILD_NUMBER)
+
+          branch: $BRANCH
+          upstream: $UPSTREAM
+          main: $MAIN
+          MSG
+          key="$RUNNER_TEMP/sync-key"
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          chmod 600 "$key"
+          GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git push --quiet "git@github.com:${GITHUB_REPOSITORY}.git" "refs/tags/$tag"
+          rm -f "$key"
+          echo "Tagged $tag at $SHA"
+
+  release:
+    needs: [prepare, build, tag]
+    if: >-
+      always() && needs.prepare.outputs.release == 'true' &&
+      ((needs.build.result == 'success' && needs.tag.result == 'success') ||
+       (needs.build.result == 'skipped' && needs.prepare.outputs.release_build != ''))
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Give the build to the release group
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+          BUILD_NUMBER: ${{ needs.build.outputs.build_number || needs.prepare.outputs.release_build }}
+          GROUP: ${{ vars.TESTFLIGHT_RELEASE_GROUP }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          [ -n "$GROUP" ] || { echo "::error::Set the repository variable TESTFLIGHT_RELEASE_GROUP."; exit 1; }
+          pip install --quiet pyjwt cryptography
+          bundle_id="$(jq -r .bundle_id build-system/lumigram-configuration.json)"
+          python3 .github/scripts/testflight-add-group.py "$bundle_id" "$VERSION" "$BUILD_NUMBER" "$GROUP"
+
+      - name: Tag the release
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+          BUILD_NUMBER: ${{ needs.build.outputs.build_number || needs.prepare.outputs.release_build }}
+          DEPLOY_KEY: ${{ secrets.SYNC_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --quiet --force --tags origin
+          git tag -a "v$VERSION" "v$VERSION-$BUILD_NUMBER^{commit}" -m "Lumigram $VERSION: release build $BUILD_NUMBER"
+          key="$RUNNER_TEMP/sync-key"
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          chmod 600 "$key"
+          GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git push --quiet "git@github.com:${GITHUB_REPOSITORY}.git" "refs/tags/v$VERSION"
+          rm -f "$key"
+          echo "Released Lumigram $VERSION as build $BUILD_NUMBER"
