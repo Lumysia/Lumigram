@@ -1,5 +1,5 @@
 import Foundation
-import Postbox
+import TelegramCore
 
 /// Hides incoming messages that contain one of the user's filter words. It only
 /// affects what the chat shows; messages it hides after the last one shown are
@@ -20,7 +20,7 @@ public struct LumigramMessageFilter {
         self.patterns = lines.filter(isPattern).compactMap { try? NSRegularExpression(pattern: String($0.dropFirst().dropLast()), options: .caseInsensitive) }
     }
 
-    public func hides(_ message: Message) -> Bool {
+    public func hides(_ message: EngineMessage) -> Bool {
         guard message.flags.contains(.Incoming), !message.text.isEmpty else {
             return false
         }
@@ -31,7 +31,7 @@ public struct LumigramMessageFilter {
 
     /// The index to read up to when `index` is the newest message shown and
     /// `messages` is the whole loaded history.
-    public func readIndex(after index: MessageIndex, in messages: [Message]) -> MessageIndex {
+    public func readIndex(after index: EngineMessage.Index, in messages: [EngineMessage]) -> EngineMessage.Index {
         let later = messages.filter { $0.index > index }
         guard let last = later.last, later.allSatisfy(self.hides) else {
             return index
