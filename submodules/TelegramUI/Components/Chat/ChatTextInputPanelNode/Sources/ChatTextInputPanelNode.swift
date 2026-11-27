@@ -368,7 +368,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
     
     private let hapticFeedback = HapticFeedback()
     
-    public var isAIEnabled: Bool = false
+    public var isAIEnabled: Bool = false { didSet { if !LumigramSettings.shared[.aiButton] { self.isAIEnabled = false } } } // MARK: Lumigram
     
     public var inputTextState: ChatTextInputState {
         if let richTextInputNode = self.richTextInputNode {
