@@ -24,6 +24,10 @@ public struct LumigramStrings {
     public var doubleTapReaction: String { self.text("Send Reaction", zh: "发送回应") }
     public var doubleTapReply: String { self.text("Reply", zh: "回复") }
     public var doubleTapNothing: String { self.text("Nothing", zh: "无操作") }
+    public var stickerSizeHeader: String { self.text("Sticker Size", zh: "贴纸大小") }
+    public var stickerSizeDefault: String { self.text("Default", zh: "默认") }
+    public var stickerSizeMedium: String { self.text("Medium", zh: "中") }
+    public var stickerSizeSmall: String { self.text("Small", zh: "小") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
     public var rememberFolder: String { self.text("Open the Last Used Folder", zh: "打开上次使用的分组") }
