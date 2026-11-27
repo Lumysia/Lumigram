@@ -13,6 +13,7 @@ import PhoneNumberFormat
 import DebugSettingsUI
 import MessageUI
 import AuthenticationServices
+import LumigramCore
 
 public final class AuthorizationSequencePhoneEntryController: ViewController, MFMailComposeViewControllerDelegate, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding {
     private var controllerNode: AuthorizationSequencePhoneEntryControllerNode {
@@ -240,7 +241,7 @@ public final class AuthorizationSequencePhoneEntryController: ViewController, MF
                     return
                 }
                 
-                let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: relyingPartyIdentifier)
+                let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: lumigramPasskeyRelyingParty ?? relyingPartyIdentifier) // MARK: Lumigram
                 let platformKeyRequest = platformProvider.createCredentialAssertionRequest(challenge: challengeData)
                 let authController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
                 authController.delegate = self
