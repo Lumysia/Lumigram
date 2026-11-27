@@ -36,6 +36,11 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .option(strings.doubleTapReply, .doubleTapAction, value: LumigramDoubleTapAction.reply.rawValue),
             .option(strings.doubleTapNothing, .doubleTapAction, value: LumigramDoubleTapAction.nothing.rawValue),
         ], footer: nil),
+        Section(header: strings.stickerSizeHeader, rows: [
+            .option(strings.stickerSizeDefault, .stickerSize, value: "default"),
+            .option(strings.stickerSizeMedium, .stickerSize, value: "medium"),
+            .option(strings.stickerSizeSmall, .stickerSize, value: "small"),
+        ], footer: nil),
         Section(header: strings.chatListHeader, rows: [
             .toggle(strings.rememberFolder, .rememberFolder),
             .toggle(strings.hideStories, .hideStories),

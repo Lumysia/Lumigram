@@ -5,6 +5,7 @@ public extension LumigramSettings.Keys {
     static let sendWithReturn = LumigramSettings.Key<Bool>("sendWithReturn", default: false)
     static let deletionEffect = LumigramSettings.Key<Bool>("deletionEffect", default: true)
     static let doubleTapAction = LumigramSettings.Key<String>("doubleTapAction", default: LumigramDoubleTapAction.reaction.rawValue)
+    static let stickerSize = LumigramSettings.Key<String>("stickerSize", default: "default")
     static let hideStories = LumigramSettings.Key<Bool>("hideStories", default: false)
     static let confirmStories = LumigramSettings.Key<Bool>("confirmStories", default: false)
     static let rememberFolder = LumigramSettings.Key<Bool>("rememberFolder", default: true)
