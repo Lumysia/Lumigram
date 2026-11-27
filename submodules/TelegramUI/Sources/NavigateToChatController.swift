@@ -20,8 +20,12 @@ import SavedMessagesScreen
 import WallpaperGalleryScreen
 import ChatMessageNotificationItem
 import FaceScanScreen
+import LumigramUI
 
 public func navigateToChatControllerImpl(_ params: NavigateToChatControllerParams) {
+    if LumigramChatLock.shared.asksToOpen(params.chatLocation.peerId, context: params.context, open: { navigateToChatControllerImpl(params) }) { // MARK: Lumigram
+        return
+    }
     if case let .peer(peer) = params.chatLocation {
         let _ = params.context.engine.peers.ensurePeerIsLocallyAvailable(peer: peer).startStandalone()
     }

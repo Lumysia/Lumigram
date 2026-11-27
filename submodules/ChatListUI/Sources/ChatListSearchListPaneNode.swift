@@ -39,6 +39,7 @@ import ButtonComponent
 import BundleIconComponent
 import AnimatedTextComponent
 import TextFormat
+import LumigramCore
 
 private func isIncludedCommunityContainer(_ peer: EnginePeer?, filter: ChatListNodePeersFilter) -> Bool {
     if filter.contains(.includeCommunities), case .community = peer {
@@ -3441,7 +3442,7 @@ final class ChatListSearchListPaneNode: ASDisplayNode, ChatListSearchPaneNode {
                         var hasAnyMessages = false
                         for foundRemoteMessageSet in foundRemoteMessages.0 {
                             for message in foundRemoteMessageSet.messages {
-                                if existingMessageIds.contains(message.id) {
+                                if existingMessageIds.contains(message.id) || LumigramChatList.locked.contains(message.id.peerId, account: context.account.peerId) { // MARK: Lumigram
                                     continue
                                 }
                                 existingMessageIds.insert(message.id)

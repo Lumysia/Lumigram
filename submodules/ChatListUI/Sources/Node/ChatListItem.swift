@@ -29,6 +29,8 @@ import MultilineTextComponent
 import MultilineTextWithEntitiesComponent
 import ShimmerEffect
 import GlassBackgroundComponent
+import LumigramCore
+import LumigramUI
 
 public enum ChatListItemContent {
     public final class ThreadInfo: Equatable {
@@ -2795,6 +2797,9 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                         break
                     }
                     
+                    if LumigramChatList.locked.contains(itemPeer.peerId, account: item.context.account.peerId) { // MARK: Lumigram
+                        (initialHideAuthor, messageText, messageEntities, spoilers, customEmojiRanges, richTextPreview) = (true, LumigramStrings(item.presentationData.strings).lockedChatPreview, [], nil, nil, nil)
+                    }
                     contentData = .chat(itemPeer: itemPeer, threadInfo: threadInfo, peer: peer, hideAuthor: hideAuthor, messageText: messageText, messageEntities: messageEntities, spoilers: spoilers, customEmojiRanges: customEmojiRanges, richTextPreview: richTextPreview)
                     hideAuthor = initialHideAuthor
                 case let .group(groupPeers):
@@ -3283,6 +3288,9 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                         if message._asMessage().containsSecretMedia {
                             displayMediaPreviews = false
                         } else if let _ = message.peers[message.id.peerId] as? TelegramSecretChat {
+                            displayMediaPreviews = false
+                        }
+                        if LumigramChatList.locked.contains(message.id.peerId, account: item.context.account.peerId) { // MARK: Lumigram
                             displayMediaPreviews = false
                         }
                         if displayMediaPreviews {

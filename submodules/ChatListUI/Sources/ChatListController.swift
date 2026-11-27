@@ -2116,6 +2116,10 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 gesture?.cancel()
                 return
             }
+            if LumigramChatLock.shared.asksToOpen(peer.id, context: strongSelf.context, open: {}) { // MARK: Lumigram
+                gesture?.cancel()
+                return
+            }
             
             if case let .channel(channel) = peer, channel.isForumOrMonoForum {
                 let chatListController = ChatListControllerImpl(context: strongSelf.context, location: .forum(peerId: channel.id), controlsHistoryPreload: false, hideNetworkActivityStatus: true, previewing: true, enableDebugActions: false)

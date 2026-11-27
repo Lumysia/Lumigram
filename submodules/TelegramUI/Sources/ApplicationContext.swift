@@ -33,6 +33,7 @@ import AttachmentUI
 import MinimizedContainer
 import BrowserUI
 import NewsFeedSupport
+import LumigramCore
 
 final class UnauthorizedApplicationContext {
     let sharedContext: SharedAccountContextImpl
@@ -420,6 +421,9 @@ final class AuthorizedApplicationContext {
                                 }
                             }
                             
+                            if LumigramChatList.locked.contains(firstMessage.id.peerId, account: strongSelf.context.account.peerId) { // MARK: Lumigram
+                                return
+                            }
                             if inAppNotificationSettings.displayPreviews {
                                 let presentationData = strongSelf.context.sharedContext.currentPresentationData.with { $0 }
                                 strongSelf.notificationController.enqueue(ChatMessageNotificationItem(context: strongSelf.context, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat, nameDisplayOrder: presentationData.nameDisplayOrder, messages: messages, threadData: threadData, tapAction: {

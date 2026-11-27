@@ -1217,6 +1217,9 @@ private final class NotificationServiceHandler {
                     } else {
                         if let aps = payloadJson["aps"] as? [String: Any], var peerId = peerId {
                             var content: NotificationContent = NotificationContent(isLockedMessage: isLockedMessage)
+                            if LumigramChatList.locked.contains(peerId, account: accountPeerId) { // MARK: Lumigram
+                                content.isLockedMessage = isLockedMessage ?? "You have a new message"
+                            }
                             content.recipientAccountName = recipientAccountName
                             if let alert = aps["alert"] as? [String: Any] {
                                 if let topicTitleValue = payloadJson["topic_title"] as? String {

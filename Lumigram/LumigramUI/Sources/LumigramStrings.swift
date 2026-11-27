@@ -75,10 +75,14 @@ public struct LumigramStrings {
     public var confirmCalls: String { self.text("Ask Before Calling", zh: "拨打前确认") }
     public var privacyFooter: String {
         self.text(
-            "With link previews off, links you send don't get a preview card, so no preview is fetched for them.",
-            zh: "关闭链接预览后，你发送的链接不会生成预览卡片，也不会为它们抓取预览。"
+            "With link previews off, links you send don't get a preview card, so no preview is fetched for them. To lock a chat with Face ID, hold it in the chat list and choose Lock Chat.",
+            zh: "关闭链接预览后，你发送的链接不会生成预览卡片，也不会为它们抓取预览。要用面容 ID 锁定聊天，在聊天列表中长按它并选择“锁定聊天”。"
         )
     }
+    public var lockChat: String { self.text("Lock Chat", zh: "锁定聊天") }
+    public var unlockChat: String { self.text("Remove Chat Lock", zh: "取消锁定聊天") }
+    public var unlockChatReason: String { self.text("Unlock this chat", zh: "解锁此聊天") }
+    public var lockedChatPreview: String { self.text("Locked", zh: "已锁定") }
     public var confirmCall: String { self.text("Start a voice call?", zh: "要发起语音通话吗？") }
     public var confirmVideoCall: String { self.text("Start a video call?", zh: "要发起视频通话吗？") }
     public var call: String { self.text("Call", zh: "呼叫") }
