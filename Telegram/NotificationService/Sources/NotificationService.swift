@@ -21,6 +21,7 @@ import ConvertOpusToAAC
 import CoreServices
 import ImageIO
 import UniformTypeIdentifiers
+import LumigramCore
 
 private let queue = Queue()
 
@@ -1338,6 +1339,9 @@ private final class NotificationServiceHandler {
                                 }
                             } else if let sound = aps["sound"] as? String {
                                 content.sound = sound
+                            }
+                            if lumigramSilencesNotification(payloadJson) { // MARK: Lumigram
+                                content.sound = nil
                             }
 
                             if let storyId {

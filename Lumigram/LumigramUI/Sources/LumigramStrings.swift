@@ -34,6 +34,15 @@ public struct LumigramStrings {
     public var userId: String { self.text("ID", zh: "ID") }
     public var dataCenter: String { self.text("Data Center", zh: "数据中心") }
     public var registered: String { self.text("Registered", zh: "注册于") }
+    public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
+    public var silentPinnedNotifications: String { self.text("Silent Pinned Message Alerts", zh: "置顶消息通知静音") }
+    public var silentMentionNotifications: String { self.text("Silent Mention and Reply Alerts", zh: "提及和回复通知静音") }
+    public var notificationsFooter: String {
+        self.text(
+            "These alerts still appear, without sound. Mentions and replies include those in muted chats.",
+            zh: "这些通知仍会显示，只是没有声音。提及和回复也包括已静音聊天中的。"
+        )
+    }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {
