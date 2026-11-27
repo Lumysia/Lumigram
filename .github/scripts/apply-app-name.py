@@ -6,7 +6,10 @@ import sys
 from pathlib import Path
 
 name = json.loads(Path(sys.argv[1]).read_text())["app_name"]
-word = re.compile(r"\bSwiftgram\b")
+# Every occurrence: inflected forms ("Swiftgramin", "Swiftgramu"), words run
+# together with CJK text and "\nSwiftgram" escapes all count. No key or handle
+# in these files contains the name.
+word = re.compile(r"Swiftgram")
 # Italian Siri examples add a pronunciation hint: "Swiftgram (Swiftgramma)".
 hint = re.compile(r" \(Swiftgramma\)")
 files = [
