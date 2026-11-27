@@ -20,6 +20,7 @@ public struct LumigramStrings {
     public var secondsInTimestamps: String { self.text("Seconds in Message Times", zh: "消息时间显示秒") }
     public var sendWithReturn: String { self.text("Send with Return Key", zh: "回车键发送") }
     public var deletionEffect: String { self.text("Deletion Animation", zh: "删除动画") }
+    public var hideReactions: String { self.text("Hide Reactions", zh: "隐藏回应") }
     public var doubleTapHeader: String { self.text("Double-Tap on a Message", zh: "双击消息") }
     public var doubleTapReaction: String { self.text("Send Reaction", zh: "发送回应") }
     public var doubleTapReply: String { self.text("Reply", zh: "回复") }

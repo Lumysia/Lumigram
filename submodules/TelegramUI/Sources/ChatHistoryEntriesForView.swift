@@ -186,6 +186,7 @@ func chatHistoryEntriesForView(
         if lumigramFilter.hides(EngineMessage(message)) { // MARK: Lumigram
             continue
         }
+        message = lumigramFilter.shown(message) // MARK: Lumigram
         
         if case let .replyThread(replyThreadMessage) = location, replyThreadMessage.isForumPost {
             if isUndisplayedForumTopicRoot(message, location: location, additionalData: view.additionalData) {

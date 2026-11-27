@@ -1,8 +1,8 @@
 import Foundation
 import TelegramCore
 
-/// Hides incoming messages that contain one of the user's filter words. It only
-/// affects what the chat shows; messages it hides after the last one shown are
+/// Hides incoming messages that contain one of the user's filter words, and
+/// reactions when they are turned off. It only affects what the chat shows; messages it hides after the last one shown are
 /// read along with it, so a chat doesn't stay unread because of them.
 ///
 /// A line written as /pattern/ is a case-insensitive regular expression; any
@@ -10,6 +10,7 @@ import TelegramCore
 public struct LumigramMessageFilter {
     private let words: [String]
     private let patterns: [NSRegularExpression]
+    private let hidesReactions = LumigramSettings.shared[.hideReactions]
 
     public init() {
         let lines = LumigramSettings.shared[.filterWords]
@@ -27,6 +28,23 @@ public struct LumigramMessageFilter {
         let text = message.text
         return self.words.contains { text.range(of: $0, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
             || self.patterns.contains { $0.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil }
+    }
+
+    /// The message as the chat shows it. Hidden reactions keep an empty
+    /// attribute, so the reactions it marks unseen are still marked seen.
+    public func shown(_ message: EngineRawMessage) -> EngineRawMessage {
+        guard self.hidesReactions, message.attributes.contains(where: { $0 is ReactionsMessageAttribute || $0 is PendingReactionsMessageAttribute }) else {
+            return message
+        }
+        return message.withUpdatedAttributes(message.attributes.compactMap { attribute -> EngineMessage.Attribute? in
+            if attribute is PendingReactionsMessageAttribute {
+                return nil
+            }
+            if let reactions = attribute as? ReactionsMessageAttribute, !reactions.isTags {
+                return ReactionsMessageAttribute(canViewList: false, isTags: false, reactions: [], recentPeers: reactions.recentPeers, topPeers: [])
+            }
+            return attribute
+        })
     }
 
     /// The index to read up to when `index` is the newest message shown and

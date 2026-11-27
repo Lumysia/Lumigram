@@ -31,6 +31,7 @@ private func sections(_ strings: LumigramStrings, _ presentationStrings: Present
             .toggle(strings.secondsInTimestamps, .secondsInTimestamps),
             .toggle(strings.sendWithReturn, .sendWithReturn),
             .toggle(strings.deletionEffect, .deletionEffect),
+            .toggle(strings.hideReactions, .hideReactions),
         ], footer: nil),
         Section(header: strings.doubleTapHeader, rows: [
             .option(strings.doubleTapReaction, .doubleTapAction, value: LumigramDoubleTapAction.reaction.rawValue),
