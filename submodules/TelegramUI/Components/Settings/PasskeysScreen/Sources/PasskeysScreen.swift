@@ -14,6 +14,7 @@ import ButtonComponent
 import AccountContext
 import AuthenticationServices
 import PresentationDataUtils
+import LumigramCore
 
 final class PasskeysScreenComponent: Component {
     typealias EnvironmentType = ViewControllerComponentContainer.Environment
@@ -166,7 +167,7 @@ final class PasskeysScreenComponent: Component {
                         return
                     }
                     
-                    let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: relyingPartyIdentifier)
+                    let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: lumigramPasskeyRelyingParty ?? relyingPartyIdentifier) // MARK: Lumigram
                     let platformKeyRequest = platformProvider.createCredentialRegistrationRequest(challenge: challengeData, name: userName, userID: userId)
                     let authController = ASAuthorizationController(authorizationRequests: [platformKeyRequest])
                     authController.delegate = self
@@ -225,7 +226,7 @@ final class PasskeysScreenComponent: Component {
                     }
                     if let credentialId = decodeBase64(passkey.id) {
                         do {
-                            try await updater.reportUnknownPublicKeyCredential(relyingPartyIdentifier: "telegram.org", credentialID: credentialId)
+                            try await updater.reportUnknownPublicKeyCredential(relyingPartyIdentifier: lumigramPasskeyRelyingParty ?? "telegram.org", credentialID: credentialId) // MARK: Lumigram
                         } catch let e {
                             Logger.shared.log("Passkeys", "reportUnknownPublicKeyCredential error: \(e)")
                         }
