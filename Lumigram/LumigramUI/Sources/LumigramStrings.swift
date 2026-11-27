@@ -23,6 +23,17 @@ public struct LumigramStrings {
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
     public var appliesAfterRestart: String { self.text("Applies after the app restarts.", zh: "重启应用后生效。") }
+    public var profilesHeader: String { self.text("Profiles", zh: "资料页") }
+    public var showUserInfo: String { self.text("ID, Data Center, Registration", zh: "ID、数据中心和注册时间") }
+    public var showUserInfoFooter: String {
+        self.text(
+            "The registration month is estimated on this iPhone from the user ID.",
+            zh: "注册月份由本机根据用户 ID 估算。"
+        )
+    }
+    public var userId: String { self.text("ID", zh: "ID") }
+    public var dataCenter: String { self.text("Data Center", zh: "数据中心") }
+    public var registered: String { self.text("Registered", zh: "注册于") }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {
