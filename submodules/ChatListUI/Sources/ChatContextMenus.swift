@@ -604,7 +604,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                         items.removeLast()
                     }
 
-                    return LumigramChatLock.shared.menuItems(context: context, peer: peer) + items // MARK: Lumigram
+                    return lumigramChatMenuItems(context: context, peer: peer) + items // MARK: Lumigram
                 }
             }
         }

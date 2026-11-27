@@ -1343,7 +1343,7 @@ private final class NotificationServiceHandler {
                             } else if let sound = aps["sound"] as? String {
                                 content.sound = sound
                             }
-                            if lumigramSilencesNotification(payloadJson) { // MARK: Lumigram
+                            if lumigramSilencesNotification(payloadJson, peerId: peerId, account: accountPeerId) { // MARK: Lumigram
                                 content.sound = nil
                             }
 

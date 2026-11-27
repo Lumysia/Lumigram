@@ -5,6 +5,7 @@ import TelegramCore
 /// Face ID. Kept in the app group, so the notification service reads them too.
 public struct LumigramChatList {
     public static let locked = LumigramChatList(key: .lockedChats)
+    public static let silentMentions = LumigramChatList(key: .silentMentionChats)
 
     private let key: LumigramSettings.Key<[String]>
 

@@ -64,10 +64,12 @@ public struct LumigramStrings {
     public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
     public var silentPinnedNotifications: String { self.text("Silent Pinned Message Alerts", zh: "置顶消息通知静音") }
     public var silentMentionNotifications: String { self.text("Silent Mention and Reply Alerts", zh: "提及和回复通知静音") }
+    public var silenceMentions: String { self.text("Silence Mentions", zh: "提及静音") }
+    public var unsilenceMentions: String { self.text("Unsilence Mentions", zh: "取消提及静音") }
     public var notificationsFooter: String {
         self.text(
-            "These alerts still appear, without sound. Mentions and replies include those in muted chats.",
-            zh: "这些通知仍会显示，只是没有声音。提及和回复也包括已静音聊天中的。"
+            "These alerts still appear, without sound. Mentions and replies include those in muted chats. To silence them in one group only, hold it in the chat list and choose Silence Mentions.",
+            zh: "这些通知仍会显示，只是没有声音。提及和回复也包括已静音聊天中的。只想静音某个群组的，在聊天列表中长按它并选择“提及静音”。"
         )
     }
     public var privacyHeader: String { self.text("Privacy", zh: "隐私") }

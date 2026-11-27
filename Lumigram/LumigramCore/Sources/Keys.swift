@@ -20,6 +20,7 @@ public extension LumigramSettings.Keys {
     static let silentPinnedNotifications = LumigramSettings.Key<Bool>("silentPinnedNotifications", default: false)
     static let silentMentionNotifications = LumigramSettings.Key<Bool>("silentMentionNotifications", default: false)
     static let lockedChats = LumigramSettings.Key<[String]>("lockedChats", default: [])
+    static let silentMentionChats = LumigramSettings.Key<[String]>("silentMentionChats", default: [])
     static let linkPreviews = LumigramSettings.Key<Bool>("linkPreviews", default: false)
     static let confirmCalls = LumigramSettings.Key<Bool>("confirmCalls", default: true)
 }
