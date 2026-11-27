@@ -7,6 +7,7 @@ import SwiftSignalKit
 import AccountContext
 import SwiftUI
 import TelegramUIPreferences
+import LumigramCore
 
 public func presentTranslateScreen(
     context: AccountContext,
@@ -34,6 +35,8 @@ public func presentTranslateScreen(
     default:
         break
     }
+    // MARK: Lumigram
+    useSystemTranslation = useSystemTranslation || lumigramTranslatesOnDevice
     
     if useSystemTranslation {
         presentSystemTranslateScreen(context: context, text: text)

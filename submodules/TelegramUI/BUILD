@@ -65,6 +65,7 @@ swift_library(
         "//conditions:default": [],
     }),
     deps = [
+        "//Lumigram/LumigramCore:LumigramCore",
         "//submodules/CrashReporting:CrashReporting",
         "//third-party/recaptcha:RecaptchaEnterprise",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
