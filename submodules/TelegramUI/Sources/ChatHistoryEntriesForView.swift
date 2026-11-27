@@ -170,7 +170,7 @@ func chatHistoryEntriesForView(
     }
     
     var count = 0
-    let lumigramFilter = LumigramMessageFilter() // MARK: Lumigram
+    let lumigramFilter = LumigramMessageFilter(account: context.account.peerId) // MARK: Lumigram
     loop: for entry in view.entries {
         var message = entry.message.withAppliedEphemeralReplacementMessage()
         var isRead = entry.isRead

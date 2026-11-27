@@ -31,6 +31,7 @@ import WalletConnectScreen
 import AlertUI
 import MetalEngine
 import MessageWidget
+import LumigramCore
 import LumigramUI
 
 private final class DeviceSpecificContactImportContext {
@@ -126,6 +127,7 @@ public final class AccountContextImpl: AccountContext {
     public let engine: TelegramEngine
     
     public let fetchManager: FetchManager
+    private var lumigramBlockedPeers: LumigramBlockedPeers? // MARK: Lumigram
     public let prefetchManager: PrefetchManager?
     
     public var keyShortcutsController: KeyShortcutsController?
@@ -331,6 +333,7 @@ public final class AccountContextImpl: AccountContext {
         }
         self.fetchManager = FetchManagerImpl(postbox: account.postbox, storeManager: self.downloadedMediaStoreManager)
         if sharedContext.applicationBindings.isMainApp && !temp {
+            self.lumigramBlockedPeers = LumigramBlockedPeers(account: account) // MARK: Lumigram
             self.prefetchManager = PrefetchManagerImpl(sharedContext: sharedContext, account: account, engine: self.engine, fetchManager: self.fetchManager)
             self.wallpaperUploadManager = WallpaperUploadManagerImpl(sharedContext: sharedContext, account: account, presentationData: sharedContext.presentationData)
             self.themeUpdateManager = ThemeUpdateManagerImpl(sharedContext: sharedContext, account: account)

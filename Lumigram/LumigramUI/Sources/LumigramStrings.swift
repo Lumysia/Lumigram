@@ -54,10 +54,11 @@ public struct LumigramStrings {
     public var filterPlaceholder: String { self.text("One word or phrase per line", zh: "每行一个词或短语") }
     public var filterFooter: String {
         self.text(
-            "Incoming messages that contain any of these are hidden in chats. Write /pattern/ for a regular expression.",
-            zh: "包含其中任何一项的收到的消息不会在聊天中显示。写成 /pattern/ 即为正则表达式。"
+            "Incoming messages that contain any of these are hidden in chats. Write /pattern/ for a regular expression. Messages from people you blocked can be hidden in groups too.",
+            zh: "包含其中任何一项的收到的消息不会在聊天中显示。写成 /pattern/ 即为正则表达式。也可以在群组中隐藏你屏蔽的人发的消息。"
         )
     }
+    public var hideBlockedMessages: String { self.text("Hide Messages from Blocked Users", zh: "隐藏已屏蔽用户的消息") }
     public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
     public var silentPinnedNotifications: String { self.text("Silent Pinned Message Alerts", zh: "置顶消息通知静音") }
     public var privacyHeader: String { self.text("Privacy", zh: "隐私") }

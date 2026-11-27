@@ -1,18 +1,21 @@
 import Foundation
 import TelegramCore
 
-/// Hides incoming messages that contain one of the user's filter words, and
-/// reactions when they are turned off. It only affects what the chat shows; messages it hides after the last one shown are
-/// read along with it, so a chat doesn't stay unread because of them.
+/// Hides incoming messages that contain one of the user's filter words or come
+/// from a blocked peer, and reactions when they are turned off. It only
+/// affects what the chat shows; messages it hides after the last one shown
+/// are read along with it, so a chat doesn't stay unread because of them.
 ///
 /// A line written as /pattern/ is a case-insensitive regular expression; any
 /// other line matches as plain text.
 public struct LumigramMessageFilter {
     private let words: [String]
     private let patterns: [NSRegularExpression]
+    private let blocked: Set<EnginePeer.Id>
     private let hidesReactions = LumigramSettings.shared[.hideReactions]
 
-    public init() {
+    public init(account: EnginePeer.Id) {
+        self.blocked = LumigramBlockedPeers.ids(account: account)
         let lines = LumigramSettings.shared[.filterWords]
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
@@ -22,8 +25,11 @@ public struct LumigramMessageFilter {
     }
 
     public func hides(_ message: EngineMessage) -> Bool {
-        guard message.flags.contains(.Incoming), !message.text.isEmpty else {
+        guard message.flags.contains(.Incoming) else {
             return false
+        }
+        if let author = message.author?.id, self.blocked.contains(author) {
+            return true
         }
         let text = message.text
         return self.words.contains { text.range(of: $0, options: [.caseInsensitive, .diacriticInsensitive]) != nil }
