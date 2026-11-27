@@ -6729,7 +6729,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
     }
     
     var isStoryPostingAvailable: Bool {
-        guard !self.context.isFrozen else {
+        guard !self.context.isFrozen, !LumigramSettings.shared[.hideStories] else { // MARK: Lumigram
             return false
         }
         switch self.storyPostingAvailability {
