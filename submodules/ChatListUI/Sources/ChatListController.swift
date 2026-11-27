@@ -810,6 +810,11 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 guard let strongSelf = self else {
                     return
                 }
+                if strongSelf.initializedFilters { // MARK: Lumigram
+                    var folder = 0
+                    if case let .filter(id) = filter { folder = Int(id) }
+                    LumigramSettings.shared[lumigramLastFolderKey(accountId: strongSelf.context.account.peerId.toInt64())] = folder
+                }
                 
                 if let navigationBarView = strongSelf.chatListDisplayNode.navigationBarView.view as? ChatListNavigationBar.View, let headerPanelsView = navigationBarView.headerPanels as? HeaderPanelContainerComponent.View, let tabsView = headerPanelsView.tabs as? HorizontalTabsComponent.View {
                     tabsView.updateTabSwitchFraction(fraction: fraction, isDragging: strongSelf.chatListDisplayNode.mainContainerNode.isSwitchingCurrentItemFilterByDragging, transition: ComponentTransition(transition))
@@ -4156,6 +4161,10 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
             }
             
             var selectedEntryId = !strongSelf.initializedFilters ? firstItemEntryId : strongSelf.chatListDisplayNode.mainContainerNode.currentItemFilter
+            if !strongSelf.initializedFilters && LumigramSettings.shared[.rememberFolder] { // MARK: Lumigram
+                let lastFolder = LumigramSettings.shared[lumigramLastFolderKey(accountId: strongSelf.context.account.peerId.toInt64())]
+                selectedEntryId = lastFolder == 0 ? .all : .filter(Int32(lastFolder))
+            }
             var resetCurrentEntry = false
             if !resolvedItems.contains(where: { $0.id == selectedEntryId }) {
                 resetCurrentEntry = true

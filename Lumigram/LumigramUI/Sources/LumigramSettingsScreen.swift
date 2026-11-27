@@ -37,6 +37,7 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .option(strings.doubleTapNothing, .doubleTapAction, value: LumigramDoubleTapAction.nothing.rawValue),
         ], footer: nil),
         Section(header: strings.chatListHeader, rows: [
+            .toggle(strings.rememberFolder, .rememberFolder),
             .toggle(strings.hideStories, .hideStories),
             .toggle(strings.confirmStoriesToggle, .confirmStories),
         ], footer: strings.appliesAfterRestart),
