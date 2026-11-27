@@ -26,7 +26,10 @@ public struct LumigramStrings {
     public var doubleTapNothing: String { self.text("Nothing", zh: "无操作") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
-    public var appliesAfterRestart: String { self.text("Applies after the app restarts.", zh: "重启应用后生效。") }
+    public var confirmStoriesToggle: String { self.text("Ask Before Opening Stories", zh: "打开动态前确认") }
+    public var confirmStories: String { self.text("Open this story? Its author will see that you viewed it.", zh: "要打开这条动态吗？发布者会看到你看过。") }
+    public var openStories: String { self.text("Open", zh: "打开") }
+    public var appliesAfterRestart: String { self.text("Hiding stories applies after the app restarts.", zh: "隐藏动态在重启应用后生效。") }
     public var profilesHeader: String { self.text("Profiles", zh: "资料页") }
     public var showUserInfo: String { self.text("ID, Data Center, Registration", zh: "ID、数据中心和注册时间") }
     public var showUserInfoFooter: String {

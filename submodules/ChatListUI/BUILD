@@ -13,6 +13,7 @@ swift_library(
     ],
     deps = [
         "//Lumigram/LumigramCore:LumigramCore",
+        "//Lumigram/LumigramUI:LumigramUI",
         "//submodules/SSignalKit/SwiftSignalKit:SwiftSignalKit",
         "//submodules/AsyncDisplayKit:AsyncDisplayKit",
         "//submodules/Display:Display",

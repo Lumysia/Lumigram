@@ -65,6 +65,7 @@ import AlertComponent
 import AlertHeaderComponent
 import AvatarComponent
 import LumigramCore
+import LumigramUI
 
 private final class ContextControllerContentSourceImpl: ContextControllerContentSource {
     let controller: ViewController
@@ -4452,6 +4453,9 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
     }
     
     public func openStories(peerId: EnginePeer.Id, completion: @escaping (StoryContainerScreen) -> Void = { _ in }) {
+        if peerId != self.context.account.peerId, lumigramAsksBeforeOpeningStories(context: self.context, open: { [weak self] in self?.openStories(peerId: peerId, completion: completion) }) { // MARK: Lumigram
+            return
+        }
         if let navigationBarView = self.chatListDisplayNode.navigationBarView.view as? ChatListNavigationBar.View {
             if navigationBarView.storiesUnlocked {
                 self.shouldFixStorySubscriptionOrder = true
