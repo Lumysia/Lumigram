@@ -24,16 +24,17 @@ public struct LumigramStrings {
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
     public var appliesAfterRestart: String { self.text("Applies after the app restarts.", zh: "重启应用后生效。") }
     public var profilesHeader: String { self.text("Profiles", zh: "资料页") }
-    public var showUserInfo: String { self.text("ID, Data Center, Registration", zh: "ID、数据中心和注册时间") }
+    public var showUserInfo: String { self.text("User Info", zh: "用户信息") }
     public var showUserInfoFooter: String {
         self.text(
-            "The registration month is estimated on this iPhone from the user ID.",
-            zh: "注册月份由本机根据用户 ID 估算。"
+            "Shows user ID, data center, mutual contact status, and a registration month estimated on this iPhone from the user ID.",
+            zh: "显示用户 ID、数据中心、双向联系人状态，以及由本机根据用户 ID 估算的注册月份。"
         )
     }
     public var userId: String { self.text("ID", zh: "ID") }
     public var dataCenter: String { self.text("Data Center", zh: "数据中心") }
     public var registered: String { self.text("Registered", zh: "注册于") }
+    public var mutualContact: String { self.text("Mutual Contact", zh: "双向联系人") }
     public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
     public var silentPinnedNotifications: String { self.text("Silent Pinned Message Alerts", zh: "置顶消息通知静音") }
     public var silentMentionNotifications: String { self.text("Silent Mention and Reply Alerts", zh: "提及和回复通知静音") }
