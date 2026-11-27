@@ -6,6 +6,7 @@ import TelegramStringFormatting
 import TextFormat
 import LocalizedPeerData
 import AccountContext
+import LumigramCore
 
 public enum MessageTimestampStatusFormat {
     case full
@@ -163,7 +164,7 @@ public func stringForMessageTimestampStatus(
         timestamp = orignalDate
     }
     
-    var dateText = stringForMessageTimestamp(timestamp: timestamp, dateTimeFormat: dateTimeFormat)
+    var dateText = stringForMessageTimestamp(timestamp: timestamp, dateTimeFormat: dateTimeFormat, withSeconds: LumigramSettings.shared[.secondsInTimestamps]) // MARK: Lumigram
     if timestamp == scheduleWhenOnlineTimestamp {
         dateText = "         "
     }
