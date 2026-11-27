@@ -176,6 +176,7 @@ enum PeerInfoSettingsSection {
     case passwordSetup
     case dataAndStorage
     case appearance
+    case lumigram // MARK: Lumigram
     case language
     case stickers
     case premium
