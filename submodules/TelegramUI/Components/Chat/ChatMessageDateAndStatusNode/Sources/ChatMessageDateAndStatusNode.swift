@@ -13,6 +13,7 @@ import AnimationCache
 import MultiAnimationRenderer
 import TelegramStringFormatting
 import StaticGlassBackground
+import LumigramCore
 
 private func maybeAddRotationAnimation(_ layer: CALayer, duration: Double) {
     if let _ = layer.animation(forKey: "clockFrameAnimation") {
@@ -1581,5 +1582,5 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
 }
 
 public func shouldDisplayInlineDateReactions(message: EngineMessage, isPremium: Bool, forceInline: Bool) -> Bool {
-    return false
+    return LumigramSettings.shared[.hideReactions] // MARK: Lumigram: the inline layout shows only message effects
 }
