@@ -1,4 +1,5 @@
 import Foundation
+import LumigramBase
 
 public extension LumigramSettings.Keys {
     static let secondsInTimestamps = LumigramSettings.Key<Bool>("secondsInTimestamps", default: false)
@@ -10,4 +11,5 @@ public extension LumigramSettings.Keys {
     static let silentMentionNotifications = LumigramSettings.Key<Bool>("silentMentionNotifications", default: false)
     static let linkPreviews = LumigramSettings.Key<Bool>("linkPreviews", default: false)
     static let confirmCalls = LumigramSettings.Key<Bool>("confirmCalls", default: true)
+    static let speedBoost = LumigramSettings.Key<Int>(LumigramSpeedBoost.settingName, default: LumigramSpeedBoost.off.rawValue)
 }

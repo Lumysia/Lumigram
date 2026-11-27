@@ -9,6 +9,9 @@ swift_library(
     copts = [
         "-warnings-as-errors",
     ],
+    deps = [
+        "//Lumigram/LumigramBase:LumigramBase",
+    ],
     visibility = [
         "//visibility:public",
     ],
