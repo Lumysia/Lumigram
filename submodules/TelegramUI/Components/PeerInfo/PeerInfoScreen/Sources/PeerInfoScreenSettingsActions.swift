@@ -18,6 +18,7 @@ import PasswordSetupUI
 import InstantPageCache
 import WalletContext
 import UndoUI
+import LumigramUI
 
 extension PeerInfoScreenNode {
     func openSettings(section: PeerInfoSettingsSection) {
@@ -153,6 +154,8 @@ extension PeerInfoScreenNode {
             push(dataAndStorageController(context: self.context))
         case .appearance:
             push(themeSettingsController(context: self.context))
+        case .lumigram: // MARK: Lumigram
+            push(lumigramSettingsScreen(context: self.context))
         case .language:
             push(LocalizationListController(context: self.context))
         case .premium:
