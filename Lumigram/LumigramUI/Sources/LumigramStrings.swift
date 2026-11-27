@@ -46,8 +46,8 @@ public struct LumigramStrings {
     public var filterPlaceholder: String { self.text("One word or phrase per line", zh: "每行一个词或短语") }
     public var filterFooter: String {
         self.text(
-            "Incoming messages that contain any of these are hidden in chats.",
-            zh: "包含其中任何一项的收到的消息不会在聊天中显示。"
+            "Incoming messages that contain any of these are hidden in chats. Write /pattern/ for a regular expression.",
+            zh: "包含其中任何一项的收到的消息不会在聊天中显示。写成 /pattern/ 即为正则表达式。"
         )
     }
     public var notificationsHeader: String { self.text("Notifications", zh: "通知") }
