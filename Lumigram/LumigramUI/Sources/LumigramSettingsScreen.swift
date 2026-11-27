@@ -24,6 +24,11 @@ private struct Section {
 /// Every Lumigram setting, in screen order. A feature adds its rows here.
 private func sections(_ strings: LumigramStrings) -> [Section] {
     return [
+        Section(header: strings.chatsHeader, rows: [
+            .toggle(strings.secondsInTimestamps, .secondsInTimestamps),
+            .toggle(strings.sendWithReturn, .sendWithReturn),
+            .toggle(strings.deletionEffect, .deletionEffect),
+        ], footer: nil),
         Section(header: strings.aboutHeader, rows: [.link(strings.sourceCode, url: sourceCodeUrl)], footer: strings.aboutFooter),
     ]
 }

@@ -16,6 +16,10 @@ public struct LumigramStrings {
     }
 
     public var settingsTitle: String { self.text("Lumigram", zh: "Lumigram") }
+    public var chatsHeader: String { self.text("Chats", zh: "聊天") }
+    public var secondsInTimestamps: String { self.text("Seconds in Message Times", zh: "消息时间显示秒") }
+    public var sendWithReturn: String { self.text("Send with Return Key", zh: "回车键发送") }
+    public var deletionEffect: String { self.text("Deletion Animation", zh: "删除动画") }
     public var aboutHeader: String { self.text("About", zh: "关于") }
     public var sourceCode: String { self.text("Source Code", zh: "源代码") }
     public var aboutFooter: String {
