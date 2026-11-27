@@ -20,6 +20,10 @@ public struct LumigramStrings {
     public var secondsInTimestamps: String { self.text("Seconds in Message Times", zh: "消息时间显示秒") }
     public var sendWithReturn: String { self.text("Send with Return Key", zh: "回车键发送") }
     public var deletionEffect: String { self.text("Deletion Animation", zh: "删除动画") }
+    public var doubleTapHeader: String { self.text("Double-Tap on a Message", zh: "双击消息") }
+    public var doubleTapReaction: String { self.text("Send Reaction", zh: "发送回应") }
+    public var doubleTapReply: String { self.text("Reply", zh: "回复") }
+    public var doubleTapNothing: String { self.text("Nothing", zh: "无操作") }
     public var chatListHeader: String { self.text("Chat List", zh: "聊天列表") }
     public var hideStories: String { self.text("Hide Stories", zh: "隐藏动态") }
     public var appliesAfterRestart: String { self.text("Applies after the app restarts.", zh: "重启应用后生效。") }

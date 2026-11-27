@@ -78,6 +78,7 @@ import PremiumUI
 import ImageTransparency
 import StickerPackPreviewUI
 import TextNodeWithEntities
+import LumigramCore
 import EntityKeyboard
 import ChatTitleView
 import EmojiStatusComponent
@@ -1887,6 +1888,12 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                 return
             }
             if case .default = reaction, strongSelf.chatLocation.peerId == strongSelf.context.account.peerId {
+                return
+            }
+            if case .default = reaction, lumigramDoubleTapAction != .reaction { // MARK: Lumigram
+                if lumigramDoubleTapAction == .reply {
+                    strongSelf.controllerInteraction?.setupReply(message.id)
+                }
                 return
             }
             if case let .customChatContents(customChatContents) = strongSelf.presentationInterfaceState.subject {

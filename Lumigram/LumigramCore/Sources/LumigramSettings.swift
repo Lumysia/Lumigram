@@ -51,16 +51,6 @@ public final class LumigramSettings {
         }
     }
 
-    public subscript<Value: RawRepresentable>(key: Key<Value>) -> Value {
-        get {
-            return (self.defaults.object(forKey: key.name) as? Value.RawValue).flatMap(Value.init(rawValue:)) ?? key.defaultValue
-        }
-        set {
-            self.defaults.set(newValue.rawValue, forKey: key.name)
-            self.changed.putNext(key.name)
-        }
-    }
-
     private static func appGroupDefaults() -> UserDefaults {
         var bundleId = Bundle.main.bundleIdentifier ?? ""
         if Bundle.main.bundleURL.pathExtension == "appex", let dot = bundleId.lastIndex(of: ".") {
