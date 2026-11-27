@@ -64,6 +64,7 @@ import GlobalControlPanelsContext
 import AlertComponent
 import AlertHeaderComponent
 import AvatarComponent
+import LumigramCore
 
 private final class ContextControllerContentSourceImpl: ContextControllerContentSource {
     let controller: ViewController
@@ -2252,7 +2253,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 }
             })
             
-            if self.previewing {
+            if self.previewing || LumigramSettings.shared[.hideStories] { // MARK: Lumigram
                 self.storiesReady.set(.single(true))
             } else {
                 self.storySubscriptionsDisposable = (self.context.engine.messages.storySubscriptions(isHidden: self.location == .chatList(groupId: .archive))
