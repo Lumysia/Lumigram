@@ -8,6 +8,7 @@ import TelegramCore
 import SwiftUI
 import Translation
 import Combine
+import LumigramCore
 
 // Incuding at least one Objective-C class in a swift file ensures that it doesn't get stripped by the linker
 private final class LinkHelperClass: NSObject {
@@ -173,6 +174,9 @@ public func normalizeTranslationLanguage(_ code: String) -> String {
 }
 
 public func canTranslateChats(context: AccountContext) -> Bool {
+    if lumigramTranslatesOnDevice { // MARK: Lumigram
+        return true
+    }
     let translationConfiguration = TranslationConfiguration.with(appConfiguration: context.currentAppConfiguration.with { $0 })
     var chatTranslationAvailable = true
     switch translationConfiguration.auto {
