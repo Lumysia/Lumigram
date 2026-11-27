@@ -60,6 +60,7 @@ import ChatInputContextPanelNode
 import RasterizedCompositionComponent
 import RichTextEditorUIKit
 import RichTextEditorCore
+import LumigramCore
 
 /// The chat composer's inline custom-emoji view already exposes `dynamicColor` (forwarding to its backing
 /// `InlineStickerItemLayer`), so it satisfies the editor's emoji-view contract as-is. Declared here (the one
@@ -5731,6 +5732,10 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
     
     public func chatInputTextNode(shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         guard let richTextInputNode = self.richTextInputNode, let context = self.context else {
+            return false
+        }
+        if text == "\n" && LumigramSettings.shared[.sendWithReturn] { // MARK: Lumigram
+            self.sendButtonPressed()
             return false
         }
 
