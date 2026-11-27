@@ -12,6 +12,7 @@ swift_library(
         "-warnings-as-errors",
     ],
     deps = [
+        "//Lumigram/LumigramCore:LumigramCore",
         "//submodules/AsyncDisplayKit",
         "//submodules/TelegramCore",
         "//submodules/Display",
