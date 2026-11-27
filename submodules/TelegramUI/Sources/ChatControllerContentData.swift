@@ -15,6 +15,7 @@ import EmojiStatusComponent
 import TelegramUIPreferences
 import TranslateUI
 import TelegramNotices
+import LumigramCore
 
 extension ChatControllerImpl {
     final class ContentData {
@@ -2234,7 +2235,7 @@ extension ChatControllerImpl {
                         if counterAndTimestamp.0 >= 3 {
                             maybeSuggestPremium = true
                         }
-                        if (isPremium || maybeSuggestPremium || hasAutoTranslate) && !isHidden {
+                        if (isPremium || maybeSuggestPremium || hasAutoTranslate || lumigramTranslatesOnDevice) && !isHidden { // MARK: Lumigram
                             return chatTranslationState(context: context, peerId: peerId, threadId: chatLocation.threadId)
                             |> map { translationState -> ChatPresentationTranslationState? in
                                 if let translationState, !translationState.fromLang.isEmpty && (translationState.fromLang != baseLanguageCode || translationState.isEnabled) {
