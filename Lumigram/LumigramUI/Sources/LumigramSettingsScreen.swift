@@ -14,6 +14,7 @@ private struct Section {
     enum Row {
         case toggle(String, LumigramSettings.Key<Bool>)
         case lines(placeholder: String, LumigramSettings.Key<[String]>)
+        case option(String, LumigramSettings.Key<String>, value: String)
         case link(String, url: String)
     }
 
@@ -29,6 +30,11 @@ private func sections(_ strings: LumigramStrings) -> [Section] {
             .toggle(strings.secondsInTimestamps, .secondsInTimestamps),
             .toggle(strings.sendWithReturn, .sendWithReturn),
             .toggle(strings.deletionEffect, .deletionEffect),
+        ], footer: nil),
+        Section(header: strings.doubleTapHeader, rows: [
+            .option(strings.doubleTapReaction, .doubleTapAction, value: LumigramDoubleTapAction.reaction.rawValue),
+            .option(strings.doubleTapReply, .doubleTapAction, value: LumigramDoubleTapAction.reply.rawValue),
+            .option(strings.doubleTapNothing, .doubleTapAction, value: LumigramDoubleTapAction.nothing.rawValue),
         ], footer: nil),
         Section(header: strings.chatListHeader, rows: [.toggle(strings.hideStories, .hideStories)], footer: strings.appliesAfterRestart),
         Section(header: strings.profilesHeader, rows: [.toggle(strings.showUserInfo, .showUserInfo)], footer: strings.showUserInfoFooter),
@@ -47,6 +53,7 @@ private struct Entry: ItemListNodeEntry {
         case header(String)
         case toggle(String, LumigramSettings.Key<Bool>, Bool)
         case lines(placeholder: String, LumigramSettings.Key<[String]>, String)
+        case option(String, LumigramSettings.Key<String>, value: String, isSelected: Bool)
         case link(String, url: String)
         case footer(String)
     }
@@ -71,6 +78,10 @@ private struct Entry: ItemListNodeEntry {
         case let .lines(placeholder, key, text):
             return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: placeholder, maxLength: nil, sectionId: self.section, style: .blocks, capitalization: false, autocorrection: false, textUpdated: { text in
                 LumigramSettings.shared[key] = text.components(separatedBy: "\n")
+            })
+        case let .option(title, key, value, isSelected):
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: isSelected, zeroSeparatorInsets: false, sectionId: self.section, action: {
+                LumigramSettings.shared[key] = value
             })
         case let .link(title, url):
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: title, label: "", sectionId: self.section, style: .blocks, action: {
@@ -98,6 +109,8 @@ private func entries(_ sections: [Section]) -> [Entry] {
                 append(.toggle(title, key, LumigramSettings.shared[key]))
             case let .lines(placeholder, key):
                 append(.lines(placeholder: placeholder, key, LumigramSettings.shared[key].joined(separator: "\n")))
+            case let .option(title, key, value):
+                append(.option(title, key, value: value, isSelected: LumigramSettings.shared[key] == value))
             case let .link(title, url):
                 append(.link(title, url: url))
             }
